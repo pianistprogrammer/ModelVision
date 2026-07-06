@@ -89,7 +89,6 @@ packages = ["modelvision"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "modelvision/py.typed" = "modelvision/py.typed"
-"modelvision/renderers/_assets" = "modelvision/renderers/_assets"
 
 [tool.pytest.ini_options]
 minversion = "8.0"
