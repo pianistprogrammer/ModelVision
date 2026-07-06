@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.build.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # hatch-vcs needs history for tag → version
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install 3.11
+      - name: Build sdist + wheel
+        id: build
+        run: |
+          uv build
+          echo "version=$(uv run python -c 'import modelvision; print(modelvision.__version__)')" >> "$GITHUB_OUTPUT"
+      - name: Check dist
+        run: uv run --with twine twine check dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # OIDC trusted publisher
+    environment:
+      name: pypi
+      url: https://pypi.org/p/modelvision
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

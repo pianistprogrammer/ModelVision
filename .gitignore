@@ -1,0 +1,48 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Environments
+.venv/
+.env
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# uv
+# uv.lock is committed — do not ignore
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# Docs build
+site/
+
+# Local outputs from examples
+*.svg
+*.png
+*.pdf
+*.html
+!docs/**/*.svg
+!docs/**/*.png
+!docs/**/*.html
+!tests/golden/**/*.svg
+!modelvision/renderers/_assets/**

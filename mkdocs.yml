@@ -1,0 +1,207 @@
+site_name: ModelVision
+site_description: Framework-agnostic neural network architecture visualizer.
+site_url: https://modelvision.dev
+repo_url: https://github.com/pianistprogrammer/ModelVision
+repo_name: pianistprogrammer/ModelVision
+edit_uri: edit/main/docs/
+copyright: >
+  Copyright &copy; 2026 Jerry Abimbola &nbsp;·&nbsp;
+  <a href="#__consent">Change cookie settings</a>
+
+theme:
+  name: material
+  # A pair of matching palettes with a light/dark toggle in the header.
+  # ``primary: indigo`` sets the topbar / tab background; the accent
+  # colour is used for links, focus rings, and the "on this page" TOC
+  # highlight.
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  font: false   # disables Google Fonts; use the system font stack in extra.css
+  # Custom favicon + icon. Reuses the app icon slot for the browser tab.
+  favicon: assets/favicon.svg
+  logo: assets/logo.svg
+  # Every feature toggle mkdocs-material offers is opt-in here so we
+  # know exactly what's active and can turn any of them off.
+  features:
+    # Instant navigation — swaps content in place without a full page reload.
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking          # URL updates as you scroll
+    # Sidebar navigation only — no top tabs.
+    - navigation.sections          # group headings as section labels in sidebar
+    - navigation.expand            # expand all sections by default
+    - navigation.indexes           # section index pages (cookbook/index.md)
+    - navigation.top               # "back to top" FAB
+    - navigation.footer            # prev/next links in the footer
+    # Table of contents on the right with active-section highlight.
+    - toc.follow
+    # Search improvements.
+    - search.highlight
+    - search.suggest
+    - search.share
+    # Code affordances.
+    - content.code.copy
+    - content.code.annotate
+    - content.code.select
+    - content.tabs.link
+    # Announcement bar.
+    - announce.dismiss
+
+# Custom CSS overlays the default palette with a small accent tweak
+# and gives figures/images consistent styling.
+extra_css:
+  - assets/extra.css
+  - assets/fonts.css
+
+# No external JavaScript. MathJax is removed until a page actually needs
+# it — loading a 280 KB CDN bundle on every page for zero math blocks is
+# the largest single perf hit. Re-add per-page with:
+#   extra_javascript:
+#     - assets/mathjax-config.js
+#     - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra:
+  status:
+    new: Recently added
+    deprecated: Deprecated
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pianistprogrammer/ModelVision
+      name: ModelVision on GitHub
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/modelvision/
+      name: ModelVision on PyPI
+  # Analytics stub — users can drop in a Google Analytics or Plausible
+  # token via env var without touching the config.
+  analytics:
+    provider: google
+    property: !ENV [GOOGLE_ANALYTICS_KEY, ""]
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks — please open an issue if there's a specific gap.
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeat visits and preferences,
+      and to measure the effectiveness of our documentation. With your
+      consent, you help us make our documentation better.
+    actions:
+      - accept
+      - reject
+      - manage
+    cookies:
+      analytics:
+        name: Google Analytics
+        checked: true
+
+markdown_extensions:
+  # Foundational: admonitions, keyboard keys, definition lists,
+  # abbreviation footnotes, table-of-contents, superfences (needed for
+  # tabbed content + Mermaid inside code fences).
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true             # anchor "¶" beside every heading
+      permalink_title: Anchor link to this section
+  # PyMdown Extensions — the de-facto Material companion set.
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details            # collapsible admonition blocks
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      # Mermaid diagrams render inline via a superfence handler.
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true      # material-style tab pills
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Installation & quick start: getting-started.md
+  - User guide:
+      - Styling: styling.md
+      - CLI: cli.md
+  - Framework guides:
+      - Overview: cookbook/index.md
+      - PyTorch: cookbook/torch.md
+      - Keras: cookbook/keras.md
+      - JAX: cookbook/jax.md
+      - HuggingFace: cookbook/huggingface.md
+      - scikit-learn: cookbook/sklearn.md
+      - ONNX: cookbook/onnx.md
+      - CLI recipes: cookbook/cli.md
+  - API reference: api.md
+
+plugins:
+  - search:
+      separator: '[\s\-\.]+'
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: false
+            show_root_heading: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            members_order: source
+            heading_level: 2
+            docstring_style: sphinx
+            merge_init_into_class: true
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+
+watch:
+  - modelvision
