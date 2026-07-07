@@ -176,17 +176,19 @@ def _walk_modules(root: Any) -> tuple[list[tuple[str, Any]], list[tuple[str, Any
 # Modules that logically own one operation, even though they contain
 # submodules internally. Extend this if downstream users report
 # opaque names showing up in their diagrams.
-_ATOMIC_TYPES: frozenset[str] = frozenset({
-    "MultiheadAttention",
-    "TransformerEncoderLayer",
-    "TransformerDecoderLayer",
-    "LSTM",
-    "GRU",
-    "RNN",
-    "LSTMCell",
-    "GRUCell",
-    "RNNCell",
-})
+_ATOMIC_TYPES: frozenset[str] = frozenset(
+    {
+        "MultiheadAttention",
+        "TransformerEncoderLayer",
+        "TransformerDecoderLayer",
+        "LSTM",
+        "GRU",
+        "RNN",
+        "LSTMCell",
+        "GRUCell",
+        "RNNCell",
+    }
+)
 
 
 def _unwrap(model: Any, torch: Any) -> Any:
@@ -209,9 +211,7 @@ def _unwrap(model: Any, torch: Any) -> Any:
 
 def _is_data_parallel(model: Any, torch: Any) -> bool:
     try:
-        return isinstance(
-            model, (torch.nn.DataParallel, torch.nn.parallel.DistributedDataParallel)
-        )
+        return isinstance(model, (torch.nn.DataParallel, torch.nn.parallel.DistributedDataParallel))
     except AttributeError:  # pragma: no cover - older torch layouts
         return type(model).__name__ in {"DataParallel", "DistributedDataParallel"}
 
@@ -251,9 +251,7 @@ def _build_groups(
 
 
 def _empty_graph(model: Any) -> ModelGraph:
-    mv_warn(
-        f"Model {type(model).__name__!r} has no child modules — rendering placeholder."
-    )
+    mv_warn(f"Model {type(model).__name__!r} has no child modules — rendering placeholder.")
     placeholder = LayerNode(
         id="empty",
         name=type(model).__name__,

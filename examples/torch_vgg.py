@@ -23,11 +23,11 @@ def main() -> None:
         output="vgg16.svg",
         theme="dark",
         layer_palette={
-            "Conv2d":    "#4a90d9",
-            "ReLU":      "#27ae60",
+            "Conv2d": "#4a90d9",
+            "ReLU": "#27ae60",
             "MaxPool2d": "#e67e22",
-            "Linear":    "#9b59b6",
-            "Dropout":   "#7f8c8d",
+            "Linear": "#9b59b6",
+            "Dropout": "#7f8c8d",
         },
         show_params=True,
     )

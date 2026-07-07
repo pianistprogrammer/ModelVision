@@ -80,8 +80,11 @@ def render_svg(
         node_captions: dict[str, str] = {}
         for node in graph.nodes:
             style = resolve_style(
-                node, theme=theme, layer_palette=layer_palette,
-                groups=groups, node_styles=node_styles,
+                node,
+                theme=theme,
+                layer_palette=layer_palette,
+                groups=groups,
+                node_styles=node_styles,
             )
             if style.caption:
                 node_captions[node.id] = style.caption
@@ -129,22 +132,26 @@ def render_svg(
             )
             fill = style.fill or theme.default_fill
             # Per-layer-type outline overrides theme's default stroke.
-            stroke = outline_palette.get(node.layer_type,
-                                         style.stroke or theme.default_stroke)
+            stroke = outline_palette.get(node.layer_type, style.stroke or theme.default_stroke)
             stroke_w = style.stroke_width or theme.default_stroke_width
             box = laid_out.boxes[node.id]
             this_depth = depths.get(node.id, 0.0)
 
             if prev_box is not None:
-                parts.append(
-                    _flow_funnel(prev_box, prev_depth, box, this_depth, stroke, stroke_w)
+                parts.append(_flow_funnel(prev_box, prev_depth, box, this_depth, stroke, stroke_w))
+            parts.append(
+                _flow_block(
+                    box,
+                    this_depth,
+                    fill,
+                    stroke,
+                    stroke_w,
+                    node,
+                    variant=default_shape,
+                    opacity=fill_opacity,
+                    shade=shade,
                 )
-            parts.append(_flow_block(
-                box, this_depth, fill, stroke, stroke_w, node,
-                variant=default_shape,
-                opacity=fill_opacity,
-                shade=shade,
-            ))
+            )
 
             prev_box = box
             prev_depth = this_depth
@@ -154,8 +161,7 @@ def render_svg(
         if show_labels:
             # If blocks are dense (narrow face-widths), rotate labels
             # -45° so many labels can fit without overlapping.
-            widths = [laid_out.boxes[n.id].width for n in graph.nodes
-                      if n.id in laid_out.boxes]
+            widths = [laid_out.boxes[n.id].width for n in graph.nodes if n.id in laid_out.boxes]
             median_w = sorted(widths)[len(widths) // 2] if widths else 60.0
             rotate_labels = median_w < 60.0
             # Rotated labels extend further down + to the right, so
@@ -165,19 +171,30 @@ def render_svg(
                 if node.id not in laid_out.boxes:
                     continue
                 box = laid_out.boxes[node.id]
-                parts.append(_flow_label_below(
-                    box, node, theme, baseline_y,
-                    show_type=show_params, show_shape=show_shapes,
-                    rotate=rotate_labels,
-                ))
+                parts.append(
+                    _flow_label_below(
+                        box,
+                        node,
+                        theme,
+                        baseline_y,
+                        show_type=show_params,
+                        show_shape=show_shapes,
+                        rotate=rotate_labels,
+                    )
+                )
 
         # Captions render AFTER blocks so they sit on top and never clip.
         for node_id, text in node_captions.items():
             if node_id in laid_out.boxes:
-                parts.append(_flow_caption_node(
-                    laid_out.boxes[node_id], depths.get(node_id, 0.0),
-                    max_depth, text, theme,
-                ))
+                parts.append(
+                    _flow_caption_node(
+                        laid_out.boxes[node_id],
+                        depths.get(node_id, 0.0),
+                        max_depth,
+                        text,
+                        theme,
+                    )
+                )
         for name, node_ids in group_captions:
             placed = [laid_out.boxes[nid] for nid in node_ids if nid in laid_out.boxes]
             if placed:
@@ -186,7 +203,9 @@ def render_svg(
         if legend:
             parts.append(
                 _render_legend(
-                    graph, layer_palette, theme,
+                    graph,
+                    layer_palette,
+                    theme,
                     canvas_width=laid_out.width,
                     canvas_height=laid_out.height,
                 )
@@ -251,8 +270,13 @@ def render_svg(
 
 
 def _svg_header(
-    width: float, height: float, title: str | None, theme: Theme, embed_fonts: bool,
-    *, iso_pad: float = 0.0,
+    width: float,
+    height: float,
+    title: str | None,
+    theme: Theme,
+    embed_fonts: bool,
+    *,
+    iso_pad: float = 0.0,
 ) -> str:
     t = f"<title>{escape(title)}</title>" if title else ""
     # ``embed_fonts=True`` uses a font-stack with common system fallbacks so
@@ -437,7 +461,7 @@ def _render_legend(
             f'y="{_FMT.format(row_y + swatch - 1)}" '
             f'fill="{theme.font_color}" font-size="11" '
             f'dominant-baseline="alphabetic">'
-            f'{escape(label)}</text>'
+            f"{escape(label)}</text>"
         )
     parts.append("</g>")
     return "".join(parts)
@@ -496,7 +520,7 @@ def _render_node(
     body: list[str] = [
         f'<g class="mv-node" data-node-id="{escape(node.id)}" '
         f'data-layer-type="{escape(node.layer_type)}">',
-        f'<title>{escape(tooltip)}</title>',
+        f"<title>{escape(tooltip)}</title>",
         shape_svg,
     ]
     body.append(_node_label(box, label_short, style, theme, subtitle))
@@ -524,10 +548,7 @@ def _shape_element(
     """
     shape = style.shape or "rounded_rect"
     dash = ' stroke-dasharray="5 4"' if style.dash == "dashed" else ""
-    common = (
-        f'fill="{fill}" stroke="{stroke}" '
-        f'stroke-width="{stroke_width}"{dash}'
-    )
+    common = f'fill="{fill}" stroke="{stroke}" stroke-width="{stroke_width}"{dash}'
     if shape == "isometric":
         return _isometric_element(box, fill, stroke, stroke_width, dash)
     if shape == "stacked":
@@ -535,10 +556,12 @@ def _shape_element(
     if shape == "diamond":
         cx, cy = box.cx, box.cy
         hx, hy = box.width / 2, box.height / 2
-        pts = f"{_FMT.format(cx)},{_FMT.format(cy - hy)} " \
-              f"{_FMT.format(cx + hx)},{_FMT.format(cy)} " \
-              f"{_FMT.format(cx)},{_FMT.format(cy + hy)} " \
-              f"{_FMT.format(cx - hx)},{_FMT.format(cy)}"
+        pts = (
+            f"{_FMT.format(cx)},{_FMT.format(cy - hy)} "
+            f"{_FMT.format(cx + hx)},{_FMT.format(cy)} "
+            f"{_FMT.format(cx)},{_FMT.format(cy + hy)} "
+            f"{_FMT.format(cx - hx)},{_FMT.format(cy)}"
+        )
         return f'<polygon points="{pts}" {common}/>'
     if shape == "cylinder":
         x, y, w, h = box.x, box.y, box.width, box.height
@@ -546,9 +569,9 @@ def _shape_element(
         ry = h * 0.15
         return (
             f'<path d="M {_FMT.format(x)} {_FMT.format(y + ry)} '
-            f'A {_FMT.format(rx)} {_FMT.format(ry)} 0 0 0 {_FMT.format(x + w)} {_FMT.format(y + ry)} '
-            f'L {_FMT.format(x + w)} {_FMT.format(y + h - ry)} '
-            f'A {_FMT.format(rx)} {_FMT.format(ry)} 0 0 1 {_FMT.format(x)} {_FMT.format(y + h - ry)} '
+            f"A {_FMT.format(rx)} {_FMT.format(ry)} 0 0 0 {_FMT.format(x + w)} {_FMT.format(y + ry)} "
+            f"L {_FMT.format(x + w)} {_FMT.format(y + h - ry)} "
+            f"A {_FMT.format(rx)} {_FMT.format(ry)} 0 0 1 {_FMT.format(x)} {_FMT.format(y + h - ry)} "
             f'Z" {common}/>'
         )
     if shape == "parallelogram":
@@ -564,7 +587,7 @@ def _shape_element(
         return (
             f'<rect x="{_FMT.format(box.x)}" y="{_FMT.format(box.y)}" '
             f'width="{_FMT.format(box.width)}" height="{_FMT.format(box.height)}" '
-            f'{common}/>'
+            f"{common}/>"
         )
     # Default: rounded_rect. Honor ``border_radius`` if the user set it.
     radius = style.border_radius if style.border_radius is not None else 4
@@ -580,9 +603,7 @@ def _shape_element(
 # ---------------------------------------------------------------------------
 
 
-def _isometric_element(
-    box: NodeBox, fill: str, stroke: str, stroke_width: float, dash: str
-) -> str:
+def _isometric_element(box: NodeBox, fill: str, stroke: str, stroke_width: float, dash: str) -> str:
     """Extruded 3D cuboid — front face + top parallelogram + right parallelogram.
 
     Depth is a fraction of the shorter side; the top and right faces are
@@ -617,9 +638,7 @@ def _isometric_element(
     )
 
 
-def _stacked_element(
-    box: NodeBox, fill: str, stroke: str, stroke_width: float, dash: str
-) -> str:
+def _stacked_element(box: NodeBox, fill: str, stroke: str, stroke_width: float, dash: str) -> str:
     """Multiple offset copies of the box, imitating channel depth.
 
     Matches visualtorch's ``StackedBox``: N thin rectangles offset by a
@@ -675,19 +694,17 @@ def _flow_label_below(
         # label always starts BELOW the block and rotates away from it.
         anchor_x = cx
         anchor_y = box.y + box.height + 6
-        transform = (
-            f"translate({_FMT.format(anchor_x)}, {_FMT.format(anchor_y)}) rotate(45)"
-        )
+        transform = f"translate({_FMT.format(anchor_x)}, {_FMT.format(anchor_y)}) rotate(45)"
         return (
             f'<g class="mv-flow-label" data-node-id="{escape(node.id)}" '
             f'transform="{transform}">'
             f'<text x="4" y="0" text-anchor="start" dominant-baseline="middle" '
             f'font-size="10">'
             f'<tspan fill="{theme.font_color}" font-weight="700">'
-            f'{escape(short)}</tspan>'
-            f'{_shape_tspan(shape_str, theme)}'
-            f'</text>'
-            f'</g>'
+            f"{escape(short)}</tspan>"
+            f"{_shape_tspan(shape_str, theme)}"
+            f"</text>"
+            f"</g>"
         )
 
     # Non-rotated: one line centered under the block.
@@ -696,10 +713,10 @@ def _flow_label_below(
         f'<text x="{_FMT.format(cx)}" y="{_FMT.format(baseline_y)}" '
         f'text-anchor="middle" font-size="11">'
         f'<tspan fill="{theme.font_color}" font-weight="700">'
-        f'{escape(short)}</tspan>'
-        f'{_shape_tspan(shape_str, theme)}'
-        f'</text>'
-        f'</g>'
+        f"{escape(short)}</tspan>"
+        f"{_shape_tspan(shape_str, theme)}"
+        f"</text>"
+        f"</g>"
     )
 
 
@@ -710,7 +727,7 @@ def _shape_tspan(shape_str: str, theme: Theme) -> str:
     return (
         f'<tspan dx="6" fill="{theme.font_color}" opacity="0.65" '
         f'font-weight="400">'
-        f'{escape(shape_str)}</tspan>'
+        f"{escape(shape_str)}</tspan>"
     )
 
 
@@ -770,8 +787,8 @@ def _flow_caption_node(
         f'<text x="{_FMT.format(top_back_x)}" y="{_FMT.format(caption_y)}" '
         f'fill="{theme.font_color}" font-size="11" font-weight="600" '
         f'text-anchor="middle">'
-        f'{escape(text)}</text>'
-        f'</g>'
+        f"{escape(text)}</text>"
+        f"</g>"
     )
 
 
@@ -816,8 +833,8 @@ def _flow_caption_group(
         f'<text x="{_FMT.format((x1 + x2) / 2)}" y="{_FMT.format(caption_y)}" '
         f'fill="{theme.font_color}" font-size="12" font-weight="700" '
         f'text-anchor="middle">'
-        f'{escape(text)}</text>'
-        f'</g>'
+        f"{escape(text)}</text>"
+        f"</g>"
     )
 
 
@@ -890,8 +907,14 @@ def _flow_block(
     """
     if variant == "stacked":
         return _flow_block_stacked(
-            box, depth, fill, stroke, stroke_width, node,
-            opacity=opacity, shade=shade,
+            box,
+            depth,
+            fill,
+            stroke,
+            stroke_width,
+            node,
+            opacity=opacity,
+            shade=shade,
         )
 
     opacity_attr = f' opacity="{_FMT.format(opacity)}"' if opacity is not None else ""
@@ -901,11 +924,11 @@ def _flow_block(
         return (
             f'<g class="mv-flow-node" data-node-id="{escape(node.id)}" '
             f'data-layer-type="{escape(node.layer_type)}"{opacity_attr}>'
-            f'<title>{escape(node.name)}: {escape(node.layer_type)}</title>'
+            f"<title>{escape(node.name)}: {escape(node.layer_type)}</title>"
             f'<rect x="{_FMT.format(box.x)}" y="{_FMT.format(box.y)}" '
             f'width="{_FMT.format(box.width)}" height="{_FMT.format(box.height)}" '
             f'fill="{fill}" stroke="{stroke}" stroke-width="{stroke_width}"/>'
-            f'</g>'
+            f"</g>"
         )
 
     x1, y1 = box.x, box.y
@@ -931,13 +954,13 @@ def _flow_block(
     return (
         f'<g class="mv-flow-node" data-node-id="{escape(node.id)}" '
         f'data-layer-type="{escape(node.layer_type)}"{opacity_attr}>'
-        f'<title>{escape(node.name)}: {escape(node.layer_type)}</title>'
+        f"<title>{escape(node.name)}: {escape(node.layer_type)}</title>"
         f'<polygon points="{top_pts}" fill="{top_fill}" {stroke_attr}/>'
         f'<polygon points="{right_pts}" fill="{right_fill}" {stroke_attr}/>'
         f'<rect x="{_FMT.format(x1)}" y="{_FMT.format(y1)}" '
         f'width="{_FMT.format(box.width)}" height="{_FMT.format(box.height)}" '
         f'fill="{fill}" {stroke_attr}/>'
-        f'</g>'
+        f"</g>"
     )
 
 
@@ -974,11 +997,11 @@ def _flow_block_stacked(
         return (
             f'<g class="mv-flow-node" data-node-id="{escape(node.id)}" '
             f'data-layer-type="{escape(node.layer_type)}"{opacity_attr}>'
-            f'<title>{escape(node.name)}: {escape(node.layer_type)}</title>'
+            f"<title>{escape(node.name)}: {escape(node.layer_type)}</title>"
             f'<rect x="{_FMT.format(box.x)}" y="{_FMT.format(box.y)}" '
             f'width="{_FMT.format(box.width)}" height="{_FMT.format(box.height)}" '
             f'fill="{fill}" stroke="{stroke}" stroke-width="{stroke_width}"/>'
-            f'</g>'
+            f"</g>"
         )
 
     per_slice_off = min(box.height, box.width) * 0.14
@@ -989,7 +1012,7 @@ def _flow_block_stacked(
     parts: list[str] = [
         f'<g class="mv-flow-node" data-node-id="{escape(node.id)}" '
         f'data-layer-type="{escape(node.layer_type)}"{opacity_attr}>',
-        f'<title>{escape(node.name)}: {escape(node.layer_type)}</title>',
+        f"<title>{escape(node.name)}: {escape(node.layer_type)}</title>",
     ]
     for i in range(slice_count - 1, -1, -1):
         off = i * per_slice_off
@@ -1080,8 +1103,8 @@ def _badge(box: NodeBox, text: str, theme: Theme, *, offset: float) -> str:
         f'<text x="{_FMT.format(x + 1)}" y="{_FMT.format(y + 9)}" '
         f'fill="{theme.background}" font-size="8" font-weight="700" '
         f'text-anchor="middle">'
-        f'{escape(text)}</text>'
-        f'</g>'
+        f"{escape(text)}</text>"
+        f"</g>"
     )
 
 

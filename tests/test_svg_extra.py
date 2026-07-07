@@ -17,15 +17,13 @@ def test_shared_edges_use_dashed_stroke() -> None:
         edges=[Edge(source_id="a", target_id="b", kind="shared", label="tied")],
     )
     svg = render_svg(layout_vertical(g), theme=get_theme("light"))
-    assert 'stroke-dasharray' in svg
+    assert "stroke-dasharray" in svg
     assert ">tied<" in svg
 
 
 def test_long_label_is_truncated_and_full_kept_in_title() -> None:
     long_name = "very_long_layer_name_that_exceeds_the_thirty_character_limit"
-    g = ModelGraph(
-        nodes=[LayerNode(id="x", name=long_name, layer_type="Conv2d", framework="t")]
-    )
+    g = ModelGraph(nodes=[LayerNode(id="x", name=long_name, layer_type="Conv2d", framework="t")])
     svg = render_svg(layout_vertical(g), theme=get_theme("dark"))
     assert "…" in svg  # ellipsized short label
     # Full label preserved in the title tooltip.

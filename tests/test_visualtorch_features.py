@@ -168,12 +168,18 @@ def test_size_by_shape_widens_big_channel_layers() -> None:
     graph = ModelGraph(
         nodes=[
             LayerNode(
-                id="small", name="small", layer_type="Conv2d",
-                framework="test", output_shape=("B", 16, 32, 32),
+                id="small",
+                name="small",
+                layer_type="Conv2d",
+                framework="test",
+                output_shape=("B", 16, 32, 32),
             ),
             LayerNode(
-                id="big", name="big", layer_type="Conv2d",
-                framework="test", output_shape=("B", 512, 8, 8),
+                id="big",
+                name="big",
+                layer_type="Conv2d",
+                framework="test",
+                output_shape=("B", 512, 8, 8),
             ),
         ],
     )

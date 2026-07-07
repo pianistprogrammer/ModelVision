@@ -63,8 +63,7 @@ class ONNXInspector(BaseInspector):
         shape_by_output = _collect_shapes(onnx_graph)
 
         proposed = [
-            sanitize(node.name or f"{node.op_type}_{i}")
-            for i, node in enumerate(onnx_graph.node)
+            sanitize(node.name or f"{node.op_type}_{i}") for i, node in enumerate(onnx_graph.node)
         ]
         ids = uniquify(proposed)
 

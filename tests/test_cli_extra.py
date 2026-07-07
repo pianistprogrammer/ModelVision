@@ -22,7 +22,9 @@ def test_cli_unknown_extension_fails(tmp_path) -> None:  # type: ignore[no-untyp
 def test_cli_class_not_in_source_fails(tmp_path) -> None:  # type: ignore[no-untyped-def]
     pytest.importorskip("torch")
     src = tmp_path / "model.py"
-    src.write_text("import torch.nn as nn\n\nclass Other(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.l = nn.Linear(4, 4)\n")
+    src.write_text(
+        "import torch.nn as nn\n\nclass Other(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.l = nn.Linear(4, 4)\n"
+    )
     runner = CliRunner()
     result = runner.invoke(main, [str(src), "Nonexistent"])
     assert result.exit_code == 1

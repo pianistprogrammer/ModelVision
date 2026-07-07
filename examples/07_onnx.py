@@ -28,7 +28,9 @@ def build_tiny_onnx(path: str) -> None:
     y = helper.make_tensor_value_info("y", TensorProto.FLOAT, [1, 10])
 
     # Weights — all zeros, we're never running this.
-    conv_w = helper.make_tensor("conv_w", TensorProto.FLOAT, [16, 3, 3, 3], [0.0] * (16 * 3 * 3 * 3))
+    conv_w = helper.make_tensor(
+        "conv_w", TensorProto.FLOAT, [16, 3, 3, 3], [0.0] * (16 * 3 * 3 * 3)
+    )
     bn_scale = helper.make_tensor("bn_scale", TensorProto.FLOAT, [16], [1.0] * 16)
     bn_bias = helper.make_tensor("bn_bias", TensorProto.FLOAT, [16], [0.0] * 16)
     bn_mean = helper.make_tensor("bn_mean", TensorProto.FLOAT, [16], [0.0] * 16)
@@ -37,8 +39,20 @@ def build_tiny_onnx(path: str) -> None:
     fc_b = helper.make_tensor("fc_b", TensorProto.FLOAT, [10], [0.0] * 10)
 
     nodes = [
-        helper.make_node("Conv", ["x", "conv_w"], ["conv_out"], name="conv1", kernel_shape=[3, 3], pads=[1, 1, 1, 1]),
-        helper.make_node("BatchNormalization", ["conv_out", "bn_scale", "bn_bias", "bn_mean", "bn_var"], ["bn_out"], name="bn1"),
+        helper.make_node(
+            "Conv",
+            ["x", "conv_w"],
+            ["conv_out"],
+            name="conv1",
+            kernel_shape=[3, 3],
+            pads=[1, 1, 1, 1],
+        ),
+        helper.make_node(
+            "BatchNormalization",
+            ["conv_out", "bn_scale", "bn_bias", "bn_mean", "bn_var"],
+            ["bn_out"],
+            name="bn1",
+        ),
         helper.make_node("Relu", ["bn_out"], ["relu_out"], name="relu1"),
         helper.make_node("GlobalAveragePool", ["relu_out"], ["gap_out"], name="gap"),
         helper.make_node("Flatten", ["gap_out"], ["flat_out"], name="flatten"),
@@ -46,7 +60,10 @@ def build_tiny_onnx(path: str) -> None:
     ]
 
     graph = helper.make_graph(
-        nodes, "tiny_classifier", [x], [y],
+        nodes,
+        "tiny_classifier",
+        [x],
+        [y],
         [conv_w, bn_scale, bn_bias, bn_mean, bn_var, fc_w, fc_b],
     )
     model = helper.make_model(graph, opset_imports=[helper.make_opsetid("", 13)])

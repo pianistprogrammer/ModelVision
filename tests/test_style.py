@@ -37,9 +37,7 @@ def test_user_palette_beats_theme_palette() -> None:
 
 def test_wildcard_fallback() -> None:
     theme = Theme(default_fill="#000000")
-    style = resolve_style(
-        _node(layer_type="Weird"), theme=theme, layer_palette={"*": "#abcdef"}
-    )
+    style = resolve_style(_node(layer_type="Weird"), theme=theme, layer_palette={"*": "#abcdef"})
     assert style.fill == "#abcdef"
 
 

@@ -13,9 +13,7 @@ def _make_tiny_onnx(path):  # type: ignore[no-untyped-def]
     from onnx import TensorProto, helper
 
     input_ = helper.make_tensor_value_info("x", TensorProto.FLOAT, [1, 3, 8, 8])
-    weight = helper.make_tensor(
-        "w", TensorProto.FLOAT, [4, 3, 3, 3], [0.0] * (4 * 3 * 3 * 3)
-    )
+    weight = helper.make_tensor("w", TensorProto.FLOAT, [4, 3, 3, 3], [0.0] * (4 * 3 * 3 * 3))
     conv_out = helper.make_tensor_value_info("conv_out", TensorProto.FLOAT, [1, 4, 6, 6])
     output_ = helper.make_tensor_value_info("y", TensorProto.FLOAT, [1, 4, 6, 6])
     conv = helper.make_node("Conv", ["x", "w"], ["conv_out"], name="conv1", kernel_shape=[3, 3])

@@ -25,7 +25,9 @@ def test_hierarchical_layout_falls_back_to_vertical() -> None:
     from modelvision.layout.hierarchical import layout_hierarchical
 
     g = ModelGraph(
-        nodes=[LayerNode(id=str(i), name=str(i), layer_type="X", framework="test") for i in range(3)],
+        nodes=[
+            LayerNode(id=str(i), name=str(i), layer_type="X", framework="test") for i in range(3)
+        ],
         edges=[Edge(source_id="0", target_id="1"), Edge(source_id="1", target_id="2")],
     )
     laid = layout_hierarchical(g)

@@ -104,19 +104,23 @@ def _model_source_arguments(f):  # type: ignore[no-untyped-def]
 
 def _framework_options(f):  # type: ignore[no-untyped-def]
     f = click.option(
-        "--framework", "-f",
+        "--framework",
+        "-f",
         type=click.Choice(_FRAMEWORKS),
         default="auto",
         help="Framework hint. Auto-detects from module prefix or file extension.",
     )(f)
     f = click.option(
-        "--init-args", "init_args_json", default=None,
-        help='JSON dict passed as constructor kwargs, e.g. \'{"num_classes": 100}\'.',
+        "--init-args",
+        "init_args_json",
+        default=None,
+        help="JSON dict passed as constructor kwargs, e.g. '{\"num_classes\": 100}'.",
     )(f)
     f = click.option(
-        "--input-shape", default=None,
+        "--input-shape",
+        default=None,
         help='Symbolic input shape, e.g. "1x3x224x224". Required for flow layout '
-             'and for lazy-built Keras / JAX models.',
+        "and for lazy-built Keras / JAX models.",
     )(f)
     return f
 
@@ -125,66 +129,120 @@ def _style_options(f):  # type: ignore[no-untyped-def]
     """Every flag that affects the visual output. Mirrors ``render()``."""
     f = click.option("--theme", "-t", default="light", type=click.Choice(_THEMES))(f)
     f = click.option(
-        "--layout", type=click.Choice(_LAYOUTS), default="vertical",
+        "--layout",
+        type=click.Choice(_LAYOUTS),
+        default="vertical",
         help="Diagram layout. 'flow' is visualtorch-style — pair with --input-shape.",
     )(f)
     f = click.option(
-        "--palette", "palette_name", default=None,
+        "--palette",
+        "palette_name",
+        default=None,
         type=click.Choice(list(PALETTES)),
         help="Named color palette. Overridden by --layer-palette entries.",
     )(f)
     f = click.option(
-        "--layer-palette", "layer_palette_raw", default=None,
+        "--layer-palette",
+        "layer_palette_raw",
+        default=None,
         help='Comma-separated "LayerType=#hex" pairs, e.g. "Conv2d=#4a90d9,Linear=#9b59b6".',
     )(f)
     f = click.option(
-        "--style-variant", type=click.Choice(_STYLE_VARIANTS), default=None,
+        "--style-variant",
+        type=click.Choice(_STYLE_VARIANTS),
+        default=None,
         help="'flat' (default), 'volumetric' (3D extruded), or 'stacked' (slice ribbon).",
     )(f)
-    f = click.option("--volumetric", is_flag=True,
-                     help="Shorthand for --style-variant volumetric.")(f)
-    f = click.option("--legend", is_flag=True,
-                     help="Draw a per-layer-type color legend in the corner.")(f)
-    f = click.option("--size-by-shape", is_flag=True,
-                     help="Scale each node's box proportional to its output tensor shape.")(f)
+    f = click.option(
+        "--volumetric", is_flag=True, help="Shorthand for --style-variant volumetric."
+    )(f)
+    f = click.option(
+        "--legend", is_flag=True, help="Draw a per-layer-type color legend in the corner."
+    )(f)
+    f = click.option(
+        "--size-by-shape",
+        is_flag=True,
+        help="Scale each node's box proportional to its output tensor shape.",
+    )(f)
     f = click.option("--no-params", is_flag=True, help="Hide parameter counts.")(f)
     f = click.option("--no-shapes", is_flag=True, help="Hide tensor shapes.")(f)
     f = click.option("--show-dtypes", is_flag=True, help="Show per-layer dtype badges.")(f)
-    f = click.option("--expand-groups", is_flag=True,
-                     help="Never fold repeated blocks (HuggingFace, large models).")(f)
-    f = click.option("--accessibility",
-                     type=click.Choice(["off", "warn", "enforce"]), default="off",
-                     help="WCAG contrast check: 'warn' emits warnings, 'enforce' auto-adjusts colors.")(f)
-    f = click.option("--symbolic-shapes", is_flag=True,
-                     help="Attempt torch.fx.symbolic_trace for cross-scope edges (PyTorch only).")(f)
-    f = click.option("--no-shared-weights", is_flag=True,
-                     help="Hide dashed shared-weight edges.")(f)
-    f = click.option("--strict/--no-strict", default=True,
-                     help="Raise on group overlaps + unknown node IDs.")(f)
+    f = click.option(
+        "--expand-groups",
+        is_flag=True,
+        help="Never fold repeated blocks (HuggingFace, large models).",
+    )(f)
+    f = click.option(
+        "--accessibility",
+        type=click.Choice(["off", "warn", "enforce"]),
+        default="off",
+        help="WCAG contrast check: 'warn' emits warnings, 'enforce' auto-adjusts colors.",
+    )(f)
+    f = click.option(
+        "--symbolic-shapes",
+        is_flag=True,
+        help="Attempt torch.fx.symbolic_trace for cross-scope edges (PyTorch only).",
+    )(f)
+    f = click.option("--no-shared-weights", is_flag=True, help="Hide dashed shared-weight edges.")(
+        f
+    )
+    f = click.option(
+        "--strict/--no-strict", default=True, help="Raise on group overlaps + unknown node IDs."
+    )(f)
     return f
 
 
 def _output_options(f):  # type: ignore[no-untyped-def]
     f = click.option(
-        "--output", "-o", type=click.Path(path_type=str), default=None,
+        "--output",
+        "-o",
+        type=click.Path(path_type=str),
+        default=None,
         help="Output path. Extension picks format (.svg/.png/.pdf/.html). "
-             "Omit + use --stdout to print to stdout.",
+        "Omit + use --stdout to print to stdout.",
     )(f)
-    f = click.option("--stdout", "to_stdout", is_flag=True,
-                     help="Write SVG/HTML to stdout instead of a file (no --output needed).")(f)
-    f = click.option("--dpi", type=int, default=300,
-                     help="DPI for raster outputs (PNG/PDF). Default 300 (publication).")(f)
-    f = click.option("--width", "img_width", type=int, default=None,
-                     help="Output pixel width. Preserves aspect ratio if only --width given.")(f)
-    f = click.option("--height", "img_height", type=int, default=None,
-                     help="Output pixel height. Preserves aspect ratio if only --height given.")(f)
-    f = click.option("--node-size", type=float, default=None,
-                     help="Per-node box size (visualtorch-compat). Number = height, "
-                          "width auto-scaled to fit labels.")(f)
-    f = click.option("--layer-spacing", type=float, default=None,
-                     help="Gap between adjacent layers in the active layout.")(f)
-    f = click.option("--overwrite/--no-overwrite", default=True,
-                     help="Overwrite the output file if it exists.")(f)
+    f = click.option(
+        "--stdout",
+        "to_stdout",
+        is_flag=True,
+        help="Write SVG/HTML to stdout instead of a file (no --output needed).",
+    )(f)
+    f = click.option(
+        "--dpi",
+        type=int,
+        default=300,
+        help="DPI for raster outputs (PNG/PDF). Default 300 (publication).",
+    )(f)
+    f = click.option(
+        "--width",
+        "img_width",
+        type=int,
+        default=None,
+        help="Output pixel width. Preserves aspect ratio if only --width given.",
+    )(f)
+    f = click.option(
+        "--height",
+        "img_height",
+        type=int,
+        default=None,
+        help="Output pixel height. Preserves aspect ratio if only --height given.",
+    )(f)
+    f = click.option(
+        "--node-size",
+        type=float,
+        default=None,
+        help="Per-node box size (visualtorch-compat). Number = height, "
+        "width auto-scaled to fit labels.",
+    )(f)
+    f = click.option(
+        "--layer-spacing",
+        type=float,
+        default=None,
+        help="Gap between adjacent layers in the active layout.",
+    )(f)
+    f = click.option(
+        "--overwrite/--no-overwrite", default=True, help="Overwrite the output file if it exists."
+    )(f)
     f = click.option("--title", default=None, help="Optional title embedded in the diagram.")(f)
     return f
 
@@ -199,8 +257,11 @@ def _output_options(f):  # type: ignore[no-untyped-def]
 @_framework_options
 @_style_options
 @_output_options
-@click.option("--dry-run", is_flag=True,
-              help="Skip rendering — print the resolved kwargs + graph summary as JSON.")
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Skip rendering — print the resolved kwargs + graph summary as JSON.",
+)
 def render(
     model_source: str,
     class_name: str | None,
@@ -245,15 +306,29 @@ def render(
         mvision render model.py MyNet --stdout > diagram.svg
     """
     kwargs = _build_render_kwargs(
-        framework=framework, input_shape=input_shape, theme=theme, layout=layout,
-        palette_name=palette_name, layer_palette_raw=layer_palette_raw,
-        style_variant=style_variant, volumetric=volumetric, legend=legend,
-        size_by_shape=size_by_shape, no_params=no_params, no_shapes=no_shapes,
-        show_dtypes=show_dtypes, expand_groups=expand_groups,
-        accessibility=accessibility, symbolic_shapes=symbolic_shapes,
-        no_shared_weights=no_shared_weights, strict=strict,
-        dpi=dpi, img_width=img_width, img_height=img_height,
-        node_size=node_size, layer_spacing=layer_spacing,
+        framework=framework,
+        input_shape=input_shape,
+        theme=theme,
+        layout=layout,
+        palette_name=palette_name,
+        layer_palette_raw=layer_palette_raw,
+        style_variant=style_variant,
+        volumetric=volumetric,
+        legend=legend,
+        size_by_shape=size_by_shape,
+        no_params=no_params,
+        no_shapes=no_shapes,
+        show_dtypes=show_dtypes,
+        expand_groups=expand_groups,
+        accessibility=accessibility,
+        symbolic_shapes=symbolic_shapes,
+        no_shared_weights=no_shared_weights,
+        strict=strict,
+        dpi=dpi,
+        img_width=img_width,
+        img_height=img_height,
+        node_size=node_size,
+        layer_spacing=layer_spacing,
         title=title,
     )
 
@@ -295,10 +370,16 @@ def render(
 @main.command()
 @_model_source_arguments
 @_framework_options
-@click.option("--json", "as_json", is_flag=True,
-              help="Emit the ModelGraph as JSON on stdout (LLM-friendly).")
-@click.option("--output", "-o", type=click.Path(path_type=str), default=None,
-              help="Write the JSON to a file instead of stdout.")
+@click.option(
+    "--json", "as_json", is_flag=True, help="Emit the ModelGraph as JSON on stdout (LLM-friendly)."
+)
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(path_type=str),
+    default=None,
+    help="Write the JSON to a file instead of stdout.",
+)
 @click.option("--expand-groups", is_flag=True)
 @click.option("--symbolic-shapes", is_flag=True)
 def inspect(
@@ -453,7 +534,9 @@ def _build_render_kwargs(**raw: Any) -> dict[str, Any]:
     }
 
 
-def _load_model(source: str, class_name: str | None, framework: str, init_args_json: str | None) -> Any:
+def _load_model(
+    source: str, class_name: str | None, framework: str, init_args_json: str | None
+) -> Any:
     """Load a model from a Python file, ONNX path, or Keras save file."""
     source_path = Path(source)
     suffix = source_path.suffix.lower()
@@ -536,13 +619,19 @@ def _parse_palette(raw: str | None) -> dict[str, str] | None:
     return {k.strip(): v.strip() for k, v in pairs}
 
 
-def _emit_dry_run(model: Any, kwargs: dict[str, Any], *, model_source: str, class_name: str | None) -> None:
+def _emit_dry_run(
+    model: Any, kwargs: dict[str, Any], *, model_source: str, class_name: str | None
+) -> None:
     """Print the resolved kwargs and a graph summary as JSON. No files written."""
     fw = kwargs.get("framework")
     shape = kwargs.get("input_shape")
-    graph = _inspect(model, framework=fw, input_shape=shape,
-                     expand_groups=kwargs.get("expand_groups", False),
-                     symbolic_shapes=kwargs.get("symbolic_shapes", False))
+    graph = _inspect(
+        model,
+        framework=fw,
+        input_shape=shape,
+        expand_groups=kwargs.get("expand_groups", False),
+        symbolic_shapes=kwargs.get("symbolic_shapes", False),
+    )
     report = {
         "model_source": model_source,
         "class_name": class_name,
@@ -590,7 +679,7 @@ def _print_summary_table(graph: Any) -> None:
     console = Console()
     table = Table(
         title=f"{graph.metadata.get('model_class', 'model')} "
-              f"({graph.metadata.get('framework', '?')})"
+        f"({graph.metadata.get('framework', '?')})"
     )
     table.add_column("id", style="cyan", no_wrap=True)
     table.add_column("type", style="magenta")

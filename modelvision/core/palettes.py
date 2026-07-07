@@ -110,10 +110,7 @@ def resolve_palette(name_or_list: str | list[str]) -> list[str]:
     if isinstance(name_or_list, list):
         return list(name_or_list)
     if name_or_list not in PALETTES:
-        raise ValueError(
-            f"Unknown palette {name_or_list!r}. "
-            f"Available: {sorted(PALETTES)}"
-        )
+        raise ValueError(f"Unknown palette {name_or_list!r}. Available: {sorted(PALETTES)}")
     return list(PALETTES[name_or_list])
 
 

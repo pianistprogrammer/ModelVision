@@ -51,9 +51,12 @@ def test_validate_groups_non_strict_warns() -> None:
 
 def test_accessibility_off_is_noop() -> None:
     g = _graph("a")
-    assert apply_accessibility(
-        g, mode=False, theme=Theme(), layer_palette=None, groups=None, node_styles=None
-    ) is None
+    assert (
+        apply_accessibility(
+            g, mode=False, theme=Theme(), layer_palette=None, groups=None, node_styles=None
+        )
+        is None
+    )
 
 
 def test_accessibility_warns_on_low_contrast() -> None:

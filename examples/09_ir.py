@@ -25,18 +25,51 @@ def main() -> None:
     # ------------------------------------------------------------------
     graph = ModelGraph(
         nodes=[
-            LayerNode(id="input", name="Input", layer_type="Input", framework="custom",
-                      output_shape=("B", 3, 224, 224)),
-            LayerNode(id="stem.conv", name="Conv7×7/2", layer_type="Conv2d", framework="custom",
-                      params=9408, output_shape=("B", 64, 112, 112)),
-            LayerNode(id="stem.bn", name="BatchNorm", layer_type="BatchNorm2d", framework="custom",
-                      params=128, output_shape=("B", 64, 112, 112)),
-            LayerNode(id="stem.act", name="ReLU", layer_type="ReLU", framework="custom",
-                      output_shape=("B", 64, 112, 112)),
-            LayerNode(id="stem.pool", name="MaxPool3×3/2", layer_type="MaxPool2d",
-                      framework="custom", output_shape=("B", 64, 56, 56)),
-            LayerNode(id="head", name="FC 1000", layer_type="Linear", framework="custom",
-                      params=64_000, output_shape=("B", 1000)),
+            LayerNode(
+                id="input",
+                name="Input",
+                layer_type="Input",
+                framework="custom",
+                output_shape=("B", 3, 224, 224),
+            ),
+            LayerNode(
+                id="stem.conv",
+                name="Conv7×7/2",
+                layer_type="Conv2d",
+                framework="custom",
+                params=9408,
+                output_shape=("B", 64, 112, 112),
+            ),
+            LayerNode(
+                id="stem.bn",
+                name="BatchNorm",
+                layer_type="BatchNorm2d",
+                framework="custom",
+                params=128,
+                output_shape=("B", 64, 112, 112),
+            ),
+            LayerNode(
+                id="stem.act",
+                name="ReLU",
+                layer_type="ReLU",
+                framework="custom",
+                output_shape=("B", 64, 112, 112),
+            ),
+            LayerNode(
+                id="stem.pool",
+                name="MaxPool3×3/2",
+                layer_type="MaxPool2d",
+                framework="custom",
+                output_shape=("B", 64, 56, 56),
+            ),
+            LayerNode(
+                id="head",
+                name="FC 1000",
+                layer_type="Linear",
+                framework="custom",
+                params=64_000,
+                output_shape=("B", 1000),
+            ),
         ],
         edges=[
             Edge(source_id="input", target_id="stem.conv"),
@@ -45,7 +78,11 @@ def main() -> None:
             Edge(source_id="stem.act", target_id="stem.pool"),
             Edge(source_id="stem.pool", target_id="head"),
         ],
-        groups=[SegmentGroup(id="stem", name="Stem", node_ids=["stem.conv", "stem.bn", "stem.act", "stem.pool"])],
+        groups=[
+            SegmentGroup(
+                id="stem", name="Stem", node_ids=["stem.conv", "stem.bn", "stem.act", "stem.pool"]
+            )
+        ],
         metadata={"model_class": "CustomBackbone", "framework": "custom"},
     )
 
@@ -65,6 +102,7 @@ def main() -> None:
     # 4. Serialize to JSON — the whole IR is a dict of primitives.
     # ------------------------------------------------------------------
     import json
+
     with open("09_graph.json", "w") as fh:
         json.dump(graph.to_dict(), fh, indent=2, default=str)
     print(f"wrote 09_graph.json: {len(graph.nodes)} nodes, {len(graph.edges)} edges")

@@ -57,16 +57,19 @@ class GGUFInspector(BaseInspector):
         metadata = _read_gguf_header(path)
         arch = metadata.get("general.architecture", "unknown")
         graph = _build_transformer_graph(metadata, arch)
-        graph.metadata.update({
-            "framework": "gguf",
-            "model_class": f"GGUF-{arch}",
-            "config_only": True,
-            "gguf_metadata": {
-                k: v for k, v in metadata.items()
-                if not k.startswith(("tokenizer.", "general.file_type"))
-                and not isinstance(v, (list, tuple))
-            },
-        })
+        graph.metadata.update(
+            {
+                "framework": "gguf",
+                "model_class": f"GGUF-{arch}",
+                "config_only": True,
+                "gguf_metadata": {
+                    k: v
+                    for k, v in metadata.items()
+                    if not k.startswith(("tokenizer.", "general.file_type"))
+                    and not isinstance(v, (list, tuple))
+                },
+            }
+        )
         return graph
 
 
@@ -85,9 +88,7 @@ def _read_gguf_header(path: Path) -> dict[str, Any]:
     with path.open("rb") as f:
         magic = f.read(4)
         if magic != _MAGIC:
-            raise InspectionError(
-                f"{path} is not a GGUF file (magic bytes = {magic!r})."
-            )
+            raise InspectionError(f"{path} is not a GGUF file (magic bytes = {magic!r}).")
         version = _u32(f)
         if version not in (2, 3):
             mv_warn(f"GGUF version {version} is untested; proceeding anyway.")
@@ -145,10 +146,17 @@ def _read_gguf_value(f: BinaryIO, value_type: int) -> Any:
 def _skip_gguf_array(f: BinaryIO, elem_type: int, length: int) -> None:
     """Advance ``f`` past ``length`` elements of ``elem_type`` without decoding."""
     fixed_sizes = {
-        _GGUF_UINT8: 1, _GGUF_INT8: 1,
-        _GGUF_UINT16: 2, _GGUF_INT16: 2,
-        _GGUF_UINT32: 4, _GGUF_INT32: 4, _GGUF_FLOAT32: 4, _GGUF_BOOL: 1,
-        _GGUF_UINT64: 8, _GGUF_INT64: 8, _GGUF_FLOAT64: 8,
+        _GGUF_UINT8: 1,
+        _GGUF_INT8: 1,
+        _GGUF_UINT16: 2,
+        _GGUF_INT16: 2,
+        _GGUF_UINT32: 4,
+        _GGUF_INT32: 4,
+        _GGUF_FLOAT32: 4,
+        _GGUF_BOOL: 1,
+        _GGUF_UINT64: 8,
+        _GGUF_INT64: 8,
+        _GGUF_FLOAT64: 8,
     }
     if elem_type in fixed_sizes:
         f.seek(fixed_sizes[elem_type] * length, 1)
@@ -196,6 +204,7 @@ def _build_transformer_graph(meta: dict[str, Any], arch: str) -> ModelGraph:
     the diagram stays compact even for 70-layer models. The layout
     engine's segment-group folding does the rest.
     """
+
     def m(key: str, default: Any = None) -> Any:
         # Try arch-prefixed key first, then generic.
         return meta.get(f"{arch}.{key}", meta.get(key, default))
@@ -213,13 +222,21 @@ def _build_transformer_graph(meta: dict[str, Any], arch: str) -> ModelGraph:
 
     def _node(nid: str, name: str, layer_type: str, **attrs: Any) -> LayerNode:
         return LayerNode(
-            id=nid, name=name, layer_type=layer_type, framework="gguf",
+            id=nid,
+            name=name,
+            layer_type=layer_type,
+            framework="gguf",
             attributes={k: v for k, v in attrs.items() if v is not None},
         )
 
     nodes: list[LayerNode] = [
-        _node("embed_tokens", "embed_tokens", "Embedding",
-              num_embeddings=vocab_size, embedding_dim=hidden_size),
+        _node(
+            "embed_tokens",
+            "embed_tokens",
+            "Embedding",
+            num_embeddings=vocab_size,
+            embedding_dim=hidden_size,
+        ),
         _node("input_norm", "input_norm", "LayerNorm", num_features=hidden_size),
     ]
     edges: list[Edge] = [
@@ -235,12 +252,19 @@ def _build_transformer_graph(meta: dict[str, Any], arch: str) -> ModelGraph:
         f"{block_prefix}.ffn_norm",
     ]
     block_nodes = [
-        _node(block_ids[0], "self_attn", "MultiHeadAttention",
-              num_heads=n_heads, num_kv_heads=n_kv_heads, embed_dim=hidden_size,
-              context_length=context_len),
+        _node(
+            block_ids[0],
+            "self_attn",
+            "MultiHeadAttention",
+            num_heads=n_heads,
+            num_kv_heads=n_kv_heads,
+            embed_dim=hidden_size,
+            context_length=context_len,
+        ),
         _node(block_ids[1], "attn_norm", "LayerNorm", num_features=hidden_size),
-        _node(block_ids[2], "feed_forward", "MLP",
-              intermediate_size=ffn_size, hidden_size=hidden_size),
+        _node(
+            block_ids[2], "feed_forward", "MLP", intermediate_size=ffn_size, hidden_size=hidden_size
+        ),
         _node(block_ids[3], "ffn_norm", "LayerNorm", num_features=hidden_size),
     ]
     if n_layer > 1:
@@ -254,13 +278,12 @@ def _build_transformer_graph(meta: dict[str, Any], arch: str) -> ModelGraph:
     edges.append(Edge(source_id=block_ids[2], target_id=block_ids[3]))
 
     # Final projection to vocab.
-    nodes.append(_node("lm_head", "lm_head", "Linear",
-                       in_features=hidden_size, out_features=vocab_size))
+    nodes.append(
+        _node("lm_head", "lm_head", "Linear", in_features=hidden_size, out_features=vocab_size)
+    )
     edges.append(Edge(source_id=block_ids[3], target_id="lm_head"))
     # Weight tying — most decoder-only LMs share embed_tokens and lm_head.
-    edges.append(
-        Edge(source_id="embed_tokens", target_id="lm_head", label="shared", kind="shared")
-    )
+    edges.append(Edge(source_id="embed_tokens", target_id="lm_head", label="shared", kind="shared"))
 
     groups = [
         SegmentGroup(

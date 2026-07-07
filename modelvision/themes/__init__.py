@@ -36,10 +36,7 @@ def get_theme(name_or_theme: str | Theme) -> Theme:
         return name_or_theme
     key = name_or_theme.lower()
     if key not in _BUILTIN:
-        raise ValueError(
-            f"Unknown theme: {name_or_theme!r}. "
-            f"Built-in themes: {sorted(_BUILTIN)}"
-        )
+        raise ValueError(f"Unknown theme: {name_or_theme!r}. Built-in themes: {sorted(_BUILTIN)}")
     return _BUILTIN[key]
 
 

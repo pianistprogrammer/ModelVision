@@ -71,9 +71,7 @@ def _detect_jax_flavor(model: Any) -> str | None:
 # ---------------------------------------------------------------------------
 
 
-def _inspect_flax(
-    module: Any, *, input_shape: tuple[int, ...] | None, inputs: Any
-) -> ModelGraph:
+def _inspect_flax(module: Any, *, input_shape: tuple[int, ...] | None, inputs: Any) -> ModelGraph:
     flax = require("flax")  # noqa: F841 - imported for the friendly error message
     jax = require("jax")
     jnp = jax.numpy
@@ -170,9 +168,7 @@ def _flax_submodules(module: Any) -> list[tuple[str, Any]]:
 #     | path | module | inputs | outputs | batch_stats | params |
 # We only need the first two. Table borders use the │ box character, which
 # we normalize to | before matching.
-_TABULATE_ROW = re.compile(
-    r"^\|\s*([^|]*?)\s*\|\s*([A-Za-z_][A-Za-z0-9_]*)\s*\|"
-)
+_TABULATE_ROW = re.compile(r"^\|\s*([^|]*?)\s*\|\s*([A-Za-z_][A-Za-z0-9_]*)\s*\|")
 
 
 def _parse_flax_tabulate(table: str, *, module_class: str) -> ModelGraph:
@@ -181,10 +177,7 @@ def _parse_flax_tabulate(table: str, *, module_class: str) -> ModelGraph:
     We keep only rows whose *path* is non-empty (skipping the root row that
     lists the whole module) and whose *type* isn't the literal header token.
     """
-    lines = [
-        line for line in table.splitlines()
-        if line.strip().startswith(("|", "│"))
-    ]
+    lines = [line for line in table.splitlines() if line.strip().startswith(("|", "│"))]
     rows: list[tuple[str, str]] = []
     for line in lines:
         m = _TABULATE_ROW.match(line.replace("│", "|"))

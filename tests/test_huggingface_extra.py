@@ -35,7 +35,11 @@ def test_hf_folding_warns() -> None:
     from modelvision import inspect
 
     config = transformers.BertConfig(
-        hidden_size=16, num_hidden_layers=2, num_attention_heads=2, intermediate_size=32, vocab_size=50
+        hidden_size=16,
+        num_hidden_layers=2,
+        num_attention_heads=2,
+        intermediate_size=32,
+        vocab_size=50,
     )
     model = transformers.BertModel(config)
     with warnings.catch_warnings(record=True) as records:
@@ -50,7 +54,11 @@ def test_hf_expand_groups_skips_folding() -> None:
     from modelvision import inspect
 
     config = transformers.BertConfig(
-        hidden_size=16, num_hidden_layers=2, num_attention_heads=2, intermediate_size=32, vocab_size=50
+        hidden_size=16,
+        num_hidden_layers=2,
+        num_attention_heads=2,
+        intermediate_size=32,
+        vocab_size=50,
     )
     g_folded = inspect(transformers.BertModel(config))
     g_expanded = inspect(transformers.BertModel(config), expand_groups=True)

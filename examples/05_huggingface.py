@@ -26,7 +26,13 @@ def main() -> None:
     # 1. Config-only rendering — no weights, no download, no forward pass.
     # -----------------------------------------------------------------
     mv.render(
-        BertConfig(hidden_size=768, num_hidden_layers=12, num_attention_heads=12, intermediate_size=3072, vocab_size=30522),
+        BertConfig(
+            hidden_size=768,
+            num_hidden_layers=12,
+            num_attention_heads=12,
+            intermediate_size=3072,
+            vocab_size=30522,
+        ),
         "05_bert.svg",
         theme="pastel",
         title="BERT-base",

@@ -14,9 +14,7 @@ from modelvision.core.ir import ModelGraph
 from modelvision.core.style import Group, NodeStyle, StyleSpec, Theme, resolve_style
 
 
-def validate_node_styles(
-    graph: ModelGraph, node_styles: dict[str, NodeStyle] | None
-) -> None:
+def validate_node_styles(graph: ModelGraph, node_styles: dict[str, NodeStyle] | None) -> None:
     """Ensure every key in ``node_styles`` names a real node.
 
     Raises :class:`ValueError` with a sorted list of valid IDs on the
@@ -28,14 +26,11 @@ def validate_node_styles(
     for key in node_styles:
         if key not in valid:
             raise ValueError(
-                f"node_styles key {key!r} does not match any node ID. "
-                f"Valid IDs: {sorted(valid)}"
+                f"node_styles key {key!r} does not match any node ID. Valid IDs: {sorted(valid)}"
             )
 
 
-def validate_groups(
-    graph: ModelGraph, groups: list[Group] | None, *, strict: bool
-) -> None:
+def validate_groups(graph: ModelGraph, groups: list[Group] | None, *, strict: bool) -> None:
     """Detect nodes claimed by more than one :class:`Group`.
 
     ``strict=True`` raises on overlap; ``strict=False`` warns and lets
@@ -49,10 +44,7 @@ def validate_groups(
         matched = [nid for nid in valid if group.matches(nid)]
         for nid in matched:
             if nid in owner_of and owner_of[nid] != group.id:
-                msg = (
-                    f"Node {nid!r} is claimed by groups "
-                    f"{owner_of[nid]!r} and {group.id!r}."
-                )
+                msg = f"Node {nid!r} is claimed by groups {owner_of[nid]!r} and {group.id!r}."
                 if strict:
                     raise ValueError(msg + " Pass strict=False to allow overlaps.")
                 mv_warn(msg + " First matching group wins in the resolver.")
@@ -97,9 +89,7 @@ def apply_accessibility(
         font = resolved.font_color or theme.font_color
         if meets_wcag_aa(font, fill):
             continue
-        msg = (
-            f"Node {node.id!r}: font color {font!r} on fill {fill!r} fails WCAG AA."
-        )
+        msg = f"Node {node.id!r}: font color {font!r} on fill {fill!r} fails WCAG AA."
         if enforce:
             new_font = adjust_for_contrast(font, fill)
             base = updated.get(node.id) or NodeStyle()

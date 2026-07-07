@@ -26,8 +26,8 @@ def _write_gguf(
     """
     buf = bytearray()
     buf += b"GGUF"
-    buf += struct.pack("<I", 3)              # version
-    buf += struct.pack("<Q", 0)              # tensor_count
+    buf += struct.pack("<I", 3)  # version
+    buf += struct.pack("<Q", 0)  # tensor_count
     buf += struct.pack("<Q", len(metadata))  # kv_count
     for key, value in metadata.items():
         _write_string(buf, key)
@@ -57,17 +57,20 @@ def _write_string(buf: bytearray, s: str) -> None:
 
 def test_gguf_inspector_parses_llama_metadata(tmp_path: Path) -> None:
     gguf = tmp_path / "test.gguf"
-    _write_gguf(gguf, {
-        "general.architecture": "llama",
-        "general.name": "TestModel",
-        "llama.block_count": 12,
-        "llama.embedding_length": 256,
-        "llama.feed_forward_length": 512,
-        "llama.attention.head_count": 8,
-        "llama.attention.head_count_kv": 4,
-        "llama.context_length": 1024,
-        "llama.vocab_size": 32000,
-    })
+    _write_gguf(
+        gguf,
+        {
+            "general.architecture": "llama",
+            "general.name": "TestModel",
+            "llama.block_count": 12,
+            "llama.embedding_length": 256,
+            "llama.feed_forward_length": 512,
+            "llama.attention.head_count": 8,
+            "llama.attention.head_count_kv": 4,
+            "llama.context_length": 1024,
+            "llama.vocab_size": 32000,
+        },
+    )
     graph = inspect(str(gguf))
 
     assert graph.metadata["framework"] == "gguf"
@@ -89,7 +92,8 @@ def test_gguf_inspector_parses_llama_metadata(tmp_path: Path) -> None:
     shared_edges = [e for e in graph.edges if e.kind == "shared"]
     assert len(shared_edges) == 1
     assert (shared_edges[0].source_id, shared_edges[0].target_id) == (
-        "embed_tokens", "lm_head",
+        "embed_tokens",
+        "lm_head",
     )
 
 

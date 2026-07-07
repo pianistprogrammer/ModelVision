@@ -83,9 +83,7 @@ def test_list_frameworks_json() -> None:
 
 def test_render_stdout_writes_svg_to_stdout(tiny_source) -> None:  # type: ignore[no-untyped-def]
     pytest.importorskip("torch")
-    result = CliRunner().invoke(
-        main, ["render", str(tiny_source), "TinyMLP", "--stdout"]
-    )
+    result = CliRunner().invoke(main, ["render", str(tiny_source), "TinyMLP", "--stdout"])
     assert result.exit_code == 0, result.output
     assert result.output.startswith("<?xml")
     assert "</svg>" in result.output
@@ -96,8 +94,16 @@ def test_render_palette_flag(tmp_path, tiny_source) -> None:  # type: ignore[no-
     out = tmp_path / "d.svg"
     result = CliRunner().invoke(
         main,
-        ["render", str(tiny_source), "TinyMLP",
-         "-o", str(out), "--palette", "okabe_ito", "--legend"],
+        [
+            "render",
+            str(tiny_source),
+            "TinyMLP",
+            "-o",
+            str(out),
+            "--palette",
+            "okabe_ito",
+            "--legend",
+        ],
     )
     assert result.exit_code == 0, result.output
     text = out.read_text()
@@ -112,8 +118,16 @@ def test_render_volumetric_flag(tmp_path, tiny_source) -> None:  # type: ignore[
     out = tmp_path / "d.svg"
     result = CliRunner().invoke(
         main,
-        ["render", str(tiny_source), "TinyMLP", "-o", str(out),
-         "--volumetric", "--palette", "vivid"],
+        [
+            "render",
+            str(tiny_source),
+            "TinyMLP",
+            "-o",
+            str(out),
+            "--volumetric",
+            "--palette",
+            "vivid",
+        ],
     )
     assert result.exit_code == 0, result.output
     text = out.read_text()
@@ -126,8 +140,17 @@ def test_render_flow_layout_needs_input_shape(tmp_path, tiny_source) -> None:  #
     out = tmp_path / "d.svg"
     result = CliRunner().invoke(
         main,
-        ["render", str(tiny_source), "TinyMLP", "-o", str(out),
-         "--layout", "flow", "--input-shape", "1x4"],
+        [
+            "render",
+            str(tiny_source),
+            "TinyMLP",
+            "-o",
+            str(out),
+            "--layout",
+            "flow",
+            "--input-shape",
+            "1x4",
+        ],
     )
     assert result.exit_code == 0, result.output
     assert out.exists()
@@ -159,8 +182,7 @@ def test_render_accessibility_enforce(tmp_path, tiny_source) -> None:  # type: i
     out = tmp_path / "d.svg"
     result = CliRunner().invoke(
         main,
-        ["render", str(tiny_source), "TinyMLP", "-o", str(out),
-         "--accessibility", "enforce"],
+        ["render", str(tiny_source), "TinyMLP", "-o", str(out), "--accessibility", "enforce"],
     )
     assert result.exit_code == 0, result.output
 
@@ -168,8 +190,7 @@ def test_render_accessibility_enforce(tmp_path, tiny_source) -> None:  # type: i
 def test_render_unknown_palette_rejected_by_choice(tiny_source) -> None:  # type: ignore[no-untyped-def]
     result = CliRunner().invoke(
         main,
-        ["render", str(tiny_source), "TinyMLP",
-         "--palette", "not_a_real_palette", "--stdout"],
+        ["render", str(tiny_source), "TinyMLP", "--palette", "not_a_real_palette", "--stdout"],
     )
     assert result.exit_code == 2  # click usage error
     assert "not_a_real_palette" in result.output
@@ -182,9 +203,7 @@ def test_render_unknown_palette_rejected_by_choice(tiny_source) -> None:  # type
 
 def test_inspect_json_dumps_graph(tiny_source) -> None:  # type: ignore[no-untyped-def]
     pytest.importorskip("torch")
-    result = CliRunner().invoke(
-        main, ["inspect", str(tiny_source), "TinyMLP", "--json"]
-    )
+    result = CliRunner().invoke(main, ["inspect", str(tiny_source), "TinyMLP", "--json"])
     assert result.exit_code == 0, result.output
     graph = json.loads(result.output)
     assert "nodes" in graph

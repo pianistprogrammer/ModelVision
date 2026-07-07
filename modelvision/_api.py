@@ -257,9 +257,7 @@ def render(
         _write_text(output, html, overwrite=overwrite)
         return None
 
-    raise RenderError(
-        f"Unsupported output format {fmt!r}. Supported: svg, png, pdf, html."
-    )
+    raise RenderError(f"Unsupported output format {fmt!r}. Supported: svg, png, pdf, html.")
 
 
 def _filter_by_type(graph: ModelGraph, ignore: set[str]) -> ModelGraph:
@@ -318,19 +316,27 @@ def _filter_by_type(graph: ModelGraph, ignore: set[str]) -> ModelGraph:
             if key in seen_pairs:
                 continue
             seen_pairs.add(key)
-            new_edges.append(Edge(
-                source_id=e.source_id, target_id=target,
-                label=e.label, kind=e.kind,
-            ))
+            new_edges.append(
+                Edge(
+                    source_id=e.source_id,
+                    target_id=target,
+                    label=e.label,
+                    kind=e.kind,
+                )
+            )
 
     new_groups: list[SegmentGroup] = []
     for g in graph.groups:
         remaining = [nid for nid in g.node_ids if nid not in dropped_ids]
         if remaining:
-            new_groups.append(SegmentGroup(
-                id=g.id, name=g.name, node_ids=remaining,
-                style_override=g.style_override,
-            ))
+            new_groups.append(
+                SegmentGroup(
+                    id=g.id,
+                    name=g.name,
+                    node_ids=remaining,
+                    style_override=g.style_override,
+                )
+            )
 
     return ModelGraph(
         nodes=kept_nodes,
@@ -471,9 +477,7 @@ def _resolve_node_size(
         return w, h
     if isinstance(node_size, (tuple, list)) and len(node_size) == 2:
         return float(node_size[0]), float(node_size[1])
-    raise RenderError(
-        f"node_size must be a number or (width, height) tuple, got {node_size!r}"
-    )
+    raise RenderError(f"node_size must be a number or (width, height) tuple, got {node_size!r}")
 
 
 # ---------------------------------------------------------------------------

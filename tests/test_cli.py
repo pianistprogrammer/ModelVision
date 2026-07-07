@@ -77,7 +77,16 @@ def test_cli_theme_and_palette(tmp_path) -> None:  # type: ignore[no-untyped-def
     runner = CliRunner()
     result = runner.invoke(
         main,
-        [str(src), "TinyMLP", "--output", str(out), "--theme", "dark", "--layer-palette", "Linear=#ff00ff"],
+        [
+            str(src),
+            "TinyMLP",
+            "--output",
+            str(out),
+            "--theme",
+            "dark",
+            "--layer-palette",
+            "Linear=#ff00ff",
+        ],
     )
     assert result.exit_code == 0, result.output
     assert "#ff00ff" in out.read_text()

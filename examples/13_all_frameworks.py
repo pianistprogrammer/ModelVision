@@ -26,15 +26,24 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # A palette that reads well in both light and dark themes.
 PALETTE = {
-    "Conv2d": "#fff59d", "Conv": "#fff59d",
+    "Conv2d": "#fff59d",
+    "Conv": "#fff59d",
     "Conv2D": "#fff59d",
-    "BatchNorm2d": "#c8e6c9", "BatchNormalization": "#c8e6c9", "BatchNorm": "#c8e6c9",
-    "ReLU": "#fff59d", "Relu": "#fff59d",
-    "MaxPool2d": "#ce93d8", "MaxPool": "#ce93d8", "MaxPooling2D": "#ce93d8",
-    "Linear": "#bbdefb", "Dense": "#bbdefb", "Gemm": "#bbdefb",
+    "BatchNorm2d": "#c8e6c9",
+    "BatchNormalization": "#c8e6c9",
+    "BatchNorm": "#c8e6c9",
+    "ReLU": "#fff59d",
+    "Relu": "#fff59d",
+    "MaxPool2d": "#ce93d8",
+    "MaxPool": "#ce93d8",
+    "MaxPooling2D": "#ce93d8",
+    "Linear": "#bbdefb",
+    "Dense": "#bbdefb",
+    "Gemm": "#bbdefb",
     "Dropout": "#e0e0e0",
     "Flatten": "#bbdefb",
-    "MultiHeadAttention": "#f8bbd0", "MultiheadAttention": "#f8bbd0",
+    "MultiHeadAttention": "#f8bbd0",
+    "MultiheadAttention": "#f8bbd0",
     "LayerNorm": "#ffe0b2",
     "MLP": "#bbdefb",
     "Embedding": "#d1c4e9",
@@ -52,7 +61,7 @@ PALETTE = {
 # ---------------------------------------------------------------------------
 
 
-_PRELUDE = f'''
+_PRELUDE = f"""
 import json, warnings, sys
 sys.path.insert(0, {str(REPO_ROOT)!r})
 warnings.simplefilter("ignore")
@@ -64,10 +73,12 @@ PALETTE = {PALETTE!r}
 # render BELOW each block per user's HTML reference.
 COMMON = dict(theme="light", layer_palette=PALETTE, legend=False,
               layout="vertical", overwrite=True)
-'''
+"""
 
 
-TORCH_SCRIPT = _PRELUDE + '''
+TORCH_SCRIPT = (
+    _PRELUDE
+    + """
 import torch.nn as nn
 model = nn.Sequential(
     nn.Conv2d(3, 16, 3, padding=1),
@@ -82,10 +93,13 @@ kwargs["layout"] = "flow"
 kwargs["input_shape"] = (1, 3, 32, 32)
 mv.render(model, f"{OUT}/13_torch.svg", title="PyTorch", **kwargs)
 print("OK")
-'''
+"""
+)
 
 
-KERAS_SCRIPT = _PRELUDE + '''
+KERAS_SCRIPT = (
+    _PRELUDE
+    + """
 try:
     import keras
 except ImportError:
@@ -108,10 +122,13 @@ kwargs["layout"] = "flow"
 kwargs["input_shape"] = (1, 32, 32, 3)
 mv.render(model, f"{OUT}/13_keras.svg", title="TensorFlow / Keras", **kwargs)
 print("OK")
-'''
+"""
+)
 
 
-JAX_SCRIPT = _PRELUDE + '''
+JAX_SCRIPT = (
+    _PRELUDE
+    + """
 import flax.linen as nn
 import jax
 class SimpleCNN(nn.Module):
@@ -134,20 +151,26 @@ kwargs["input_shape"] = (1, 32, 32, 3)
 mv.render(SimpleCNN(), f"{OUT}/13_jax.svg",
           title="JAX / Flax", **kwargs)
 print("OK")
-'''
+"""
+)
 
 
-HF_SCRIPT = _PRELUDE + '''
+HF_SCRIPT = (
+    _PRELUDE
+    + """
 from transformers import BertConfig
 config = BertConfig(hidden_size=64, num_hidden_layers=4, num_attention_heads=4,
                     intermediate_size=128, vocab_size=1000)
 mv.render(config, f"{OUT}/13_huggingface.svg",
           title="HuggingFace (BERT-mini)", **COMMON)
 print("OK")
-'''
+"""
+)
 
 
-SKLEARN_SCRIPT = _PRELUDE + '''
+SKLEARN_SCRIPT = (
+    _PRELUDE
+    + """
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
@@ -159,10 +182,13 @@ pipe = Pipeline([
 ])
 mv.render(pipe, f"{OUT}/13_sklearn.svg", title="scikit-learn", **COMMON)
 print("OK")
-'''
+"""
+)
 
 
-ONNX_SCRIPT = _PRELUDE + '''
+ONNX_SCRIPT = (
+    _PRELUDE
+    + """
 import onnx
 from onnx import TensorProto, helper
 def W(name, shape):
@@ -203,7 +229,8 @@ kwargs = dict(COMMON)
 kwargs["layout"] = "flow"
 mv.render(f"{OUT}/13_simple_cnn.onnx", f"{OUT}/13_onnx.svg", title="ONNX", **kwargs)
 print("OK")
-'''
+"""
+)
 
 
 BUILDERS = [

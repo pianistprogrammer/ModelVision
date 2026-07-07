@@ -43,11 +43,21 @@ class HuggingFaceInspector(BaseInspector):
         expand_groups: bool = False,
         **kwargs: Any,
     ) -> ModelGraph:
-        # Config-only path.
-        if is_config(model_or_config):
+        # Config-only path — two ways to detect a PretrainedConfig:
+        # 1. MRO walk (primary) — works when transformers is fully installed.
+        # 2. Duck-type fallback — ``model_type`` is a class-level attribute on
+        #    every PretrainedConfig subclass, so its presence + the absence of
+        #    ``named_parameters`` (which all nn.Modules have) reliably
+        #    identifies a config even when the MRO check misses it.
+        is_cfg = is_config(model_or_config) or (
+            hasattr(model_or_config, "model_type")
+            and not hasattr(model_or_config, "named_parameters")
+        )
+        if is_cfg:
             return build_from_config(model_or_config)
 
         # Model-instance path — delegate to torch inspector, then fold.
+        # If torch is not installed we can't inspect a live model instance.
         require("transformers")
         from modelvision.inspectors.torch_inspector import PyTorchInspector
 
@@ -96,7 +106,8 @@ def _fold_repeated_blocks(graph: ModelGraph, model: Any) -> ModelGraph:
     keep = [
         n
         for n in graph.nodes
-        if n.id not in node_ids_in_family or f".{biggest_family}.0." in f".{n.id}."
+        if n.id not in node_ids_in_family
+        or f".{biggest_family}.0." in f".{n.id}."
         or n.id.startswith(f"{biggest_family}.0.")
     ]
     kept_ids = {n.id for n in keep}

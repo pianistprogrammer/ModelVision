@@ -48,12 +48,18 @@ def render_matplotlib(
             "",
             xy=(dst.cx, dst.y),
             xytext=(src.cx, src.y + src.height),
-            arrowprops={"arrowstyle": "->" if e.kind == "data" else "-", "color": theme.edge_color, "linestyle": ls},
+            arrowprops={
+                "arrowstyle": "->" if e.kind == "data" else "-",
+                "color": theme.edge_color,
+                "linestyle": ls,
+            },
         )
 
     # Nodes.
     for node in laid_out.graph.nodes:
-        style = resolve_style(node, theme=theme, layer_palette=layer_palette, groups=groups, node_styles=node_styles)
+        style = resolve_style(
+            node, theme=theme, layer_palette=layer_palette, groups=groups, node_styles=node_styles
+        )
         box = laid_out.boxes[node.id]
         rect = patches.FancyBboxPatch(
             (box.x, box.y),

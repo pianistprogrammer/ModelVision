@@ -76,7 +76,7 @@ def test_large_model_auto_collapses_groups() -> None:
     ]
     g = ModelGraph(
         nodes=nodes,
-        edges=[Edge(source_id=f"l{i}", target_id=f"l{i+1}") for i in range(n - 1)],
+        edges=[Edge(source_id=f"l{i}", target_id=f"l{i + 1}") for i in range(n - 1)],
         groups=[SegmentGroup(id="layers", name="Layers", node_ids=[x.id for x in nodes])],
     )
     with pytest.warns(ModelVisionWarning, match="collapsing"):
@@ -94,7 +94,7 @@ def test_large_model_expand_groups_bypasses_collapse() -> None:
     ]
     g = ModelGraph(
         nodes=nodes,
-        edges=[Edge(source_id=f"l{i}", target_id=f"l{i+1}") for i in range(n - 1)],
+        edges=[Edge(source_id=f"l{i}", target_id=f"l{i + 1}") for i in range(n - 1)],
         groups=[SegmentGroup(id="layers", name="Layers", node_ids=[x.id for x in nodes])],
     )
     out = post_process(g, expand_groups=True)
@@ -108,9 +108,7 @@ def test_large_model_expand_groups_bypasses_collapse() -> None:
 
 @pytest.mark.parametrize("shape", ["rect", "rounded_rect", "diamond", "cylinder", "parallelogram"])
 def test_every_shape_variant_renders(shape: str) -> None:
-    g = ModelGraph(
-        nodes=[LayerNode(id="a", name="a", layer_type="X", framework="test")]
-    )
+    g = ModelGraph(nodes=[LayerNode(id="a", name="a", layer_type="X", framework="test")])
     svg = render_svg(
         layout_vertical(g),
         theme=get_theme("light"),

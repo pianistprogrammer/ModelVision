@@ -37,13 +37,13 @@ MIN_XY = 10.0
 MAX_XY = 2000.0
 MIN_Z = 10.0
 MAX_Z = 400.0
-MAX_Z_LOW_DIM = 120.0     # separate, tighter cap for 1D/2D "tail" tensors so
-                          # the FC head doesn't dominate the canvas.
+MAX_Z_LOW_DIM = 120.0  # separate, tighter cap for 1D/2D "tail" tensors so
+# the FC head doesn't dominate the canvas.
 SCALE_XY = 1.0
 SCALE_Z = 0.1
 SIDE_MARGIN = 40.0
 V_MARGIN = 40.0
-SPACING = 10.0            # gap between adjacent blocks (visualtorch default)
+SPACING = 10.0  # gap between adjacent blocks (visualtorch default)
 
 
 def layout_flow(
@@ -82,8 +82,12 @@ def layout_flow(
     for node in ordered:
         h, w, d = _size_from_shape(
             node.output_shape,
-            scale_xy=scale_xy, min_xy=min_xy, max_xy=max_xy,
-            scale_z=scale_z, min_z=min_z, max_z=max_z,
+            scale_xy=scale_xy,
+            min_xy=min_xy,
+            max_xy=max_xy,
+            scale_z=scale_z,
+            min_z=min_z,
+            max_z=max_z,
             max_z_low_dim=max_z_low_dim,
             low_dim_orientation=low_dim_orientation,
         )
@@ -106,11 +110,11 @@ def layout_flow(
         boxes[node.id] = NodeBox(
             node_id=node.id,
             x=cursor_x,
-            y=center_y - h / 2,   # vertically centered on the axis
+            y=center_y - h / 2,  # vertically centered on the axis
             width=w,
             height=h,
         )
-        cursor_x += w + spacing   # visualtorch-style gap between blocks
+        cursor_x += w + spacing  # visualtorch-style gap between blocks
 
     canvas_width = cursor_x + side_margin + actual_max_depth
 
@@ -164,9 +168,9 @@ def _size_from_shape(
     c, h, w, extra = dims[0], dims[1], dims[2], dims[3]
 
     # visualtorch's exact rule from _box_factory:
-    x_source = h * scale_xy           # used only for extrusion depth
-    y_source = w * scale_xy           # becomes face height (y2)
-    z_source = c * extra * scale_z    # becomes face width along flow (x2)
+    x_source = h * scale_xy  # used only for extrusion depth
+    y_source = w * scale_xy  # becomes face height (y2)
+    z_source = c * extra * scale_z  # becomes face width along flow (x2)
 
     effective_max_z = max_z_low_dim if is_low_dim else max_z
     face_height = _clamp(y_source, min_xy, max_xy)

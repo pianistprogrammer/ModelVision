@@ -101,22 +101,20 @@ mv.render(_cnn(), OUT / "vt_06_shading.svg", shade_step=0.35, **COMMON)
 # ---------------------------------------------------------------------------
 
 fluoro = {
-    "Conv2d":   {"fill": "#00F5FF", "outline": "#E0FFFF"},
-    "ReLU":     {"fill": "#FCEE09", "outline": "#FFFACD"},
+    "Conv2d": {"fill": "#00F5FF", "outline": "#E0FFFF"},
+    "ReLU": {"fill": "#FCEE09", "outline": "#FFFACD"},
     "MaxPool2d": {"fill": "#FF10F0", "outline": "#FFD1FA"},
-    "Linear":   {"fill": "#00F5FF", "outline": "#E0FFFF"},
-    "Flatten":  {"fill": "#FCEE09", "outline": "#FFFACD"},
+    "Linear": {"fill": "#00F5FF", "outline": "#E0FFFF"},
+    "Flatten": {"fill": "#FCEE09", "outline": "#FFFACD"},
 }
-mv.render(_cnn(), OUT / "vt_07_dark_background.svg",
-          layer_palette=fluoro, theme="dark", **COMMON)
+mv.render(_cnn(), OUT / "vt_07_dark_background.svg", layer_palette=fluoro, theme="dark", **COMMON)
 
 
 # ---------------------------------------------------------------------------
 # 8. Ignore Layers — drop nn.ReLU + nn.Flatten from the diagram.
 # ---------------------------------------------------------------------------
 
-mv.render(_cnn(), OUT / "vt_08_ignore_layers.svg",
-          type_ignore=["ReLU", "Flatten"], **COMMON)
+mv.render(_cnn(), OUT / "vt_08_ignore_layers.svg", type_ignore=["ReLU", "Flatten"], **COMMON)
 
 
 # ---------------------------------------------------------------------------
@@ -135,11 +133,11 @@ mv.render(
     OUT / "vt_10_everything.svg",
     style_variant="stacked",
     layer_palette={
-        "Conv2d":   {"fill": "#fff59d", "outline": "#fbc02d"},
-        "ReLU":     {"fill": "#fff59d", "outline": "#fbc02d"},
+        "Conv2d": {"fill": "#fff59d", "outline": "#fbc02d"},
+        "ReLU": {"fill": "#fff59d", "outline": "#fbc02d"},
         "MaxPool2d": {"fill": "#ce93d8", "outline": "#8e24aa"},
-        "Linear":   {"fill": "#bbdefb", "outline": "#1e88e5"},
-        "Flatten":  {"fill": "#bbdefb", "outline": "#1e88e5"},
+        "Linear": {"fill": "#bbdefb", "outline": "#1e88e5"},
+        "Flatten": {"fill": "#bbdefb", "outline": "#1e88e5"},
     },
     shade_step=0.20,
     opacity=0.95,

@@ -16,11 +16,13 @@ def test_pipeline_linear_chain() -> None:
 
     from modelvision import inspect
 
-    pipe = Pipeline([
-        ("scaler", StandardScaler()),
-        ("pca", PCA(n_components=2)),
-        ("clf", LogisticRegression()),
-    ])
+    pipe = Pipeline(
+        [
+            ("scaler", StandardScaler()),
+            ("pca", PCA(n_components=2)),
+            ("clf", LogisticRegression()),
+        ]
+    )
     g = inspect(pipe)
     assert g.metadata["framework"] == "sklearn"
     ids = [n.id for n in g.nodes]
@@ -38,10 +40,12 @@ def test_column_transformer_branches() -> None:
 
     from modelvision import inspect
 
-    ct = ColumnTransformer([
-        ("num", StandardScaler(), ["a", "b"]),
-        ("cat", OneHotEncoder(), ["c"]),
-    ])
+    ct = ColumnTransformer(
+        [
+            ("num", StandardScaler(), ["a", "b"]),
+            ("cat", OneHotEncoder(), ["c"]),
+        ]
+    )
     g = inspect(ct)
     assert {n.id for n in g.nodes} == {"num", "cat"}
     assert any(gr.name == "ColumnTransformer" for gr in g.groups)

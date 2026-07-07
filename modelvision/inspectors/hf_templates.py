@@ -51,7 +51,9 @@ def _mk_node(nid: str, name: str, layer_type: str, **attrs: Any) -> LayerNode:
     )
 
 
-def _encoder_block(prefix: str, config: Any, index: int, *, is_last: bool) -> tuple[list[LayerNode], list[Edge]]:
+def _encoder_block(
+    prefix: str, config: Any, index: int, *, is_last: bool
+) -> tuple[list[LayerNode], list[Edge]]:
     """One transformer encoder block: attention → norm → FFN → norm."""
     hs = getattr(config, "hidden_size", None)
     nh = getattr(config, "num_attention_heads", None)
@@ -123,7 +125,13 @@ def _causal_decoder(config: Any) -> ModelGraph:
 
     nodes: list[LayerNode] = [
         _mk_node("wte", "token_embedding", "Embedding", num_embeddings=vocab, embedding_dim=hidden),
-        _mk_node("wpe", "positional_embedding", "Embedding", num_embeddings=getattr(config, "n_positions", None), embedding_dim=hidden),
+        _mk_node(
+            "wpe",
+            "positional_embedding",
+            "Embedding",
+            num_embeddings=getattr(config, "n_positions", None),
+            embedding_dim=hidden,
+        ),
     ]
     edges: list[Edge] = [Edge(source_id="wte", target_id="wpe")]
     groups: list[SegmentGroup] = []
@@ -157,7 +165,13 @@ def _encoder_decoder(config: Any) -> ModelGraph:
     num_dec = getattr(config, "num_decoder_layers", None) or num_enc
 
     nodes: list[LayerNode] = [
-        _mk_node("embed", "embedding", "Embedding", num_embeddings=getattr(config, "vocab_size", None), embedding_dim=getattr(config, "d_model", None)),
+        _mk_node(
+            "embed",
+            "embedding",
+            "Embedding",
+            num_embeddings=getattr(config, "vocab_size", None),
+            embedding_dim=getattr(config, "d_model", None),
+        ),
     ]
     edges: list[Edge] = []
     groups: list[SegmentGroup] = []
@@ -167,25 +181,41 @@ def _encoder_decoder(config: Any) -> ModelGraph:
     nodes.extend(enc_block)
     edges.append(Edge(source_id="embed", target_id=enc_block[0].id))
     edges.extend(enc_edges)
-    groups.append(SegmentGroup(id="encoder", name=f"Encoder × {num_enc}", node_ids=[n.id for n in enc_block]))
+    groups.append(
+        SegmentGroup(id="encoder", name=f"Encoder × {num_enc}", node_ids=[n.id for n in enc_block])
+    )
 
     dec_block, dec_edges = _encoder_block("decoder.block.0", config, 0, is_last=False)
     dec_block[0].attributes["repeat"] = num_dec
     # Insert a cross-attention node between attn and norm1 in the decoder.
-    cross = _mk_node("decoder.block.0.cross_attn", "cross_attn", "MultiHeadAttention", num_heads=getattr(config, "num_heads", None), embed_dim=getattr(config, "d_model", None))
+    cross = _mk_node(
+        "decoder.block.0.cross_attn",
+        "cross_attn",
+        "MultiHeadAttention",
+        num_heads=getattr(config, "num_heads", None),
+        embed_dim=getattr(config, "d_model", None),
+    )
     dec_nodes_with_cross = [dec_block[0], cross, dec_block[1], dec_block[2], dec_block[3]]
     nodes.extend(dec_nodes_with_cross)
     edges.append(Edge(source_id=enc_block[-1].id, target_id=dec_block[0].id))
-    edges.extend([
-        Edge(source_id=dec_block[0].id, target_id=cross.id),
-        Edge(source_id=cross.id, target_id=dec_block[1].id),
-        Edge(source_id=dec_block[1].id, target_id=dec_block[2].id),
-        Edge(source_id=dec_block[2].id, target_id=dec_block[3].id),
-    ])
+    edges.extend(
+        [
+            Edge(source_id=dec_block[0].id, target_id=cross.id),
+            Edge(source_id=cross.id, target_id=dec_block[1].id),
+            Edge(source_id=dec_block[1].id, target_id=dec_block[2].id),
+            Edge(source_id=dec_block[2].id, target_id=dec_block[3].id),
+        ]
+    )
     edges.append(Edge(source_id=enc_block[-1].id, target_id=cross.id, label="context"))
-    groups.append(SegmentGroup(id="decoder", name=f"Decoder × {num_dec}", node_ids=[n.id for n in dec_nodes_with_cross]))
+    groups.append(
+        SegmentGroup(
+            id="decoder", name=f"Decoder × {num_dec}", node_ids=[n.id for n in dec_nodes_with_cross]
+        )
+    )
 
-    nodes.append(_mk_node("lm_head", "lm_head", "Linear", out_features=getattr(config, "vocab_size", None)))
+    nodes.append(
+        _mk_node("lm_head", "lm_head", "Linear", out_features=getattr(config, "vocab_size", None))
+    )
     edges.append(Edge(source_id=dec_block[-1].id, target_id="lm_head"))
     return ModelGraph(nodes=nodes, edges=edges, groups=groups)
 
@@ -196,7 +226,13 @@ def _vit(config: Any) -> ModelGraph:
     hidden = getattr(config, "hidden_size", None)
 
     nodes = [
-        _mk_node("patch_embed", "patch_embedding", "Conv2d", out_channels=hidden, kernel_size=getattr(config, "patch_size", None)),
+        _mk_node(
+            "patch_embed",
+            "patch_embedding",
+            "Conv2d",
+            out_channels=hidden,
+            kernel_size=getattr(config, "patch_size", None),
+        ),
         _mk_node("cls_token", "cls_token", "Parameter", embedding_dim=hidden),
         _mk_node("pos_embed", "positional_embedding", "Embedding", embedding_dim=hidden),
     ]
@@ -209,12 +245,20 @@ def _vit(config: Any) -> ModelGraph:
     nodes.extend(block)
     edges.append(Edge(source_id="pos_embed", target_id=block[0].id))
     edges.extend(block_edges)
-    nodes.append(_mk_node("classifier", "classifier", "Linear", out_features=getattr(config, "num_labels", None)))
+    nodes.append(
+        _mk_node(
+            "classifier", "classifier", "Linear", out_features=getattr(config, "num_labels", None)
+        )
+    )
     edges.append(Edge(source_id=block[-1].id, target_id="classifier"))
     return ModelGraph(
         nodes=nodes,
         edges=edges,
-        groups=[SegmentGroup(id="encoder", name=f"Encoder × {num_layers}", node_ids=[n.id for n in block])],
+        groups=[
+            SegmentGroup(
+                id="encoder", name=f"Encoder × {num_layers}", node_ids=[n.id for n in block]
+            )
+        ],
     )
 
 
