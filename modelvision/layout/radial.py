@@ -56,8 +56,8 @@ def layout_radial(
         depth.setdefault(n, 0)
 
     per_ring: dict[int, list[str]] = {}
-    for n in graph.nodes:
-        per_ring.setdefault(depth[n.id], []).append(n.id)
+    for node in graph.nodes:
+        per_ring.setdefault(depth[node.id], []).append(node.id)
 
     max_ring = max(per_ring)
     outer_radius = max_ring * ring_gap
@@ -68,9 +68,9 @@ def layout_radial(
     for ring, members in per_ring.items():
         if ring == 0:
             # Center — stack roots vertically at the middle.
-            n = len(members)
+            count = len(members)
             for i, node_id in enumerate(members):
-                y = cy - (n - 1) * node_height / 2 + i * node_height
+                y = cy - (count - 1) * node_height / 2 + i * node_height
                 boxes[node_id] = NodeBox(
                     node_id=node_id,
                     x=cx - node_width / 2,

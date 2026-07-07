@@ -31,9 +31,11 @@ _LARGE_SVG_BYTES = 10 * 1024 * 1024
 
 def inspect(model: Any, *, framework: str | None = None, **kwargs: Any) -> ModelGraph:
     """Dispatch to the matching inspector and return a :class:`ModelGraph`."""
+    from typing import cast
+
     fw = framework or detect_framework(model)
     inspector = _get_inspector(fw)
-    return inspector.inspect(model, **kwargs)
+    return cast(ModelGraph, inspector.inspect(model, **kwargs))
 
 
 def render(
