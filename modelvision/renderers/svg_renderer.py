@@ -315,12 +315,17 @@ def _defs(theme: Theme) -> str:
 
 def _background(width: float, height: float, fill: str, iso_pad: float = 0.0) -> str:
     # Cover the full viewBox including the negative region used for isometric extrusion.
-    x = -iso_pad
-    y = -iso_pad
+    # When iso_pad is 0 emit literal "0" (no decimals) so golden SVG files stay stable.
+    if iso_pad:
+        x_s = _FMT.format(-iso_pad)
+        y_s = _FMT.format(-iso_pad)
+    else:
+        x_s = "0"
+        y_s = "0"
     w = width + iso_pad
     h = height + iso_pad
     return (
-        f'<rect x="{_FMT.format(x)}" y="{_FMT.format(y)}" '
+        f'<rect x="{x_s}" y="{y_s}" '
         f'width="{_FMT.format(w)}" height="{_FMT.format(h)}" '
         f'fill="{fill}"/>'
     )
