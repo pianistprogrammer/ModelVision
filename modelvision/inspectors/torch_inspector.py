@@ -402,17 +402,32 @@ def _try_symbolic_edges(model: Any, node_ids: list[str], torch: Any) -> list[Edg
         return None
 
     valid = set(node_ids)
+
+    def _call_module_consumers(node: Any) -> list[Any]:
+        """Walk through call_function/call_method nodes to find call_module consumers."""
+        result = []
+        for user in node.users:
+            if user.op == "call_module":
+                result.append(user)
+            elif user.op in ("call_function", "call_method"):
+                result.extend(_call_module_consumers(user))
+        return result
+
     edges: list[Edge] = []
+    seen: set[tuple[str, str]] = set()
     for node in fx.graph.nodes:
         if node.op != "call_module":
             continue
         target = join(*node.target.split("."))
-        for user in node.users:
-            if user.op != "call_module":
-                continue
-            user_target = join(*user.target.split("."))
-            if target in valid and user_target in valid:
-                edges.append(Edge(source_id=target, target_id=user_target))
+        if target not in valid:
+            continue
+        for consumer in _call_module_consumers(node):
+            consumer_target = join(*consumer.target.split("."))
+            if consumer_target in valid:
+                key = (target, consumer_target)
+                if key not in seen:
+                    seen.add(key)
+                    edges.append(Edge(source_id=target, target_id=consumer_target))
     return edges
 
 

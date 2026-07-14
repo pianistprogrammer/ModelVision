@@ -171,6 +171,7 @@ nav:
       - Installation & quick start: getting-started.md
   - User guide:
       - Styling: styling.md
+      - Custom graphs: custom-graphs.md
       - CLI: cli.md
   - Framework guides:
       - Overview: cookbook/index.md

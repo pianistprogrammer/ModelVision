@@ -63,7 +63,7 @@ Framework backends are optional extras. Base install is ~5 MB. Install only what
 
 </div>
 
-## Two-line quick start
+## Quick start
 
 === "Python"
 
@@ -71,14 +71,21 @@ Framework backends are optional extras. Base install is ~5 MB. Install only what
     import torch.nn as nn
     import modelvision as mv
 
-    model = nn.Sequential(nn.Conv2d(3, 16, 3), nn.ReLU(), nn.Linear(16, 10))
-    mv.render(model, "diagram.svg", theme="dark", palette="okabe_ito")
+    model = nn.Sequential(
+        nn.Conv2d(3, 16, 3), nn.ReLU(), nn.MaxPool2d(2),
+        nn.Conv2d(16, 32, 3), nn.ReLU(),
+        nn.Flatten(), nn.Linear(32 * 14 * 14, 10),
+    )
+    mv.render(model, "diagram.svg", theme="light", palette="pastel",
+              layout="flow", input_shape=(1, 3, 32, 32))
     ```
+
+    ![Quick-start architecture diagram rendered by ModelVision](assets/sample_palette.png)
 
 === "CLI"
 
     ```bash
-    mvision render model.py MyNet -o diagram.svg --theme dark --palette okabe_ito
+    mvision render model.py MyNet -o diagram.svg --theme dark --palette pastel
     ```
 
 === "GGUF (llama.cpp / Ollama)"

@@ -3,21 +3,21 @@
 ## Sequential + Functional
 
 ```python
-from tensorflow.keras.applications import ResNet50
+import tensorflow as tf
 import modelvision as mv
 
-mv.render(
-    ResNet50(),
-    output="resnet50.html",
-    groups=[
-        mv.Group("stem",    node_pattern="conv1_*", fill="#1a237e"),
-        mv.Group("stage_1", node_pattern="conv2_*", fill="#b71c1c"),
-        mv.Group("stage_2", node_pattern="conv3_*", fill="#1b5e20"),
-        mv.Group("head",    nodes=["avg_pool", "predictions"], fill="#4a148c"),
-    ],
-    layout="horizontal",
-)
+model = tf.keras.Sequential([
+    tf.keras.layers.Conv2D(16, 3, activation="relu", input_shape=(32, 32, 3)),
+    tf.keras.layers.MaxPooling2D(),
+    tf.keras.layers.Conv2D(32, 3, activation="relu"),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(10),
+])
+mv.render(model, "model.svg", theme="light", palette="pastel",
+          layout="flow", input_shape=(1, 3, 32, 32))
 ```
+
+![Keras equivalent model architecture rendered by ModelVision](../assets/sample_keras.png)
 
 ## Subclassed models
 
@@ -29,3 +29,18 @@ container border to signal the incompleteness.
 
 Pass `input_shape` and ModelVision will call `model.build(input_shape)`
 before inspecting.
+
+## Block styles
+
+Three `style_variant` values change how every node is drawn — `"flat"` (default 2D),
+`"volumetric"` (3D isometric cuboids), and `"stacked"` (channel-slice slabs).
+They work with any layout:
+
+```python
+mv.render(model, "flat.svg",       layout="vertical")
+mv.render(model, "volumetric.svg", layout="vertical", style_variant="volumetric")
+mv.render(model, "stacked.svg",    layout="vertical", style_variant="stacked")
+mv.render(model, "flow.svg",       layout="flow",     input_shape=(1, 3, 32, 32))
+```
+
+See the [Styling guide](../styling.md#block-styles) for rendered examples of each variant.

@@ -9,6 +9,8 @@ import modelvision as mv
 mv.render(BertConfig.from_pretrained("bert-base-uncased"), output="bert.svg")
 ```
 
+![Hugging Face BERT architecture diagram rendered by ModelVision](../assets/sample_huggingface.png)
+
 Config-only rendering doesn't load any weights — perfect for
 architecture papers or blog posts where you want the canonical diagram
 without downloading a checkpoint.

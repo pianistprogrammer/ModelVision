@@ -21,6 +21,8 @@ from lowest priority to highest:
 mv.render(model, theme="dark")
 ```
 
+![Dark-theme architecture diagram rendered by ModelVision](assets/sample_dark.png)
+
 Built-in themes: `light`, `dark`, `pastel`, `grayscale`, and
 `high_contrast`.
 
@@ -65,8 +67,62 @@ mv.render(model, node_styles={
 })
 ```
 
+![Per-node custom styling rendered by ModelVision](assets/sample_custom.png)
+
 ## Accessibility
 
 Pass `accessibility_check=True` to emit a warning for every node whose
 label contrast fails WCAG AA. Pass `accessibility_check="enforce"` to
 have ModelVision automatically bump each font color until AA passes.
+
+## Block styles
+
+Three `style_variant` values control the shape of every node. They work
+with any layout and any framework.
+
+### `"flat"` — 2D rounded rectangles (default)
+
+```python
+mv.render(model, "diagram.svg", theme="light", palette="pastel",
+          layout="vertical")
+```
+
+![Flat 2D style](assets/sample_style_flat.png)
+
+### `"volumetric"` — 3D isometric cuboids
+
+```python
+mv.render(model, "diagram.svg", theme="light", palette="pastel",
+          layout="vertical", style_variant="volumetric")
+```
+
+![Volumetric 3D isometric style](assets/sample_style_volumetric.png)
+
+### `"stacked"` — channel-slice slabs
+
+```python
+mv.render(model, "diagram.svg", theme="light", palette="pastel",
+          layout="vertical", style_variant="stacked")
+```
+
+![Stacked channel-slice style](assets/sample_style_stacked.png)
+
+## Layouts
+
+Five `layout` values are available and compose freely with any `style_variant`.
+
+| Layout | Description |
+|---|---|
+| `"vertical"` | Top-to-bottom flowchart (default) |
+| `"horizontal"` | Left-to-right flowchart |
+| `"flow"` | Visualtorch-style isometric ribbon with tapered funnels between blocks |
+| `"radial"` | Circular fan layout — useful for wide branching models |
+| `"hierarchical"` | Tree layout respecting module nesting depth |
+
+```python
+# Horizontal flat layout
+mv.render(model, "diagram.svg", theme="light", palette="pastel",
+          layout="horizontal")
+```
+
+![Horizontal flat layout](assets/sample_style_horizontal.png){ .wide }

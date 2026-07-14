@@ -41,7 +41,7 @@ MAX_Z_LOW_DIM = 120.0  # separate, tighter cap for 1D/2D "tail" tensors so
 # the FC head doesn't dominate the canvas.
 SCALE_XY = 1.0
 SCALE_Z = 0.1
-SIDE_MARGIN = 40.0
+SIDE_MARGIN = 10.0
 V_MARGIN = 40.0
 SPACING = 10.0  # gap between adjacent blocks (visualtorch default)
 

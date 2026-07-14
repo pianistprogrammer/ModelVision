@@ -108,12 +108,12 @@ def render_svg(
         label_pad = 120.0 if show_labels else 0.0
 
         iso_pad = max_depth + 20.0 + caption_pad
-        width += iso_pad
+        width += iso_pad + label_pad  # rotated labels at the last block overhang rightward
         height += iso_pad + label_pad
         parts: list[str] = []
         parts.append(_svg_header(width, height, title, theme, embed_fonts, iso_pad=iso_pad))
         parts.append(_defs(theme))
-        parts.append(_background(width, height, theme.background))
+        parts.append(_background(width, height, theme.background, iso_pad=iso_pad))
 
         # Draw left-to-right. For each block, first draw the funnel from
         # the previous block to this one (so its far end lands under the
@@ -225,7 +225,7 @@ def render_svg(
     parts = []
     parts.append(_svg_header(width, height, title, theme, embed_fonts, iso_pad=iso_pad))
     parts.append(_defs(theme))
-    parts.append(_background(width, height, theme.background))
+    parts.append(_background(width, height, theme.background, iso_pad=iso_pad))
 
     # Groups first (behind everything).
     parts.extend(_render_segments(graph, laid_out, theme))
@@ -313,10 +313,15 @@ def _defs(theme: Theme) -> str:
     )
 
 
-def _background(width: float, height: float, fill: str) -> str:
+def _background(width: float, height: float, fill: str, iso_pad: float = 0.0) -> str:
+    # Cover the full viewBox including the negative region used for isometric extrusion.
+    x = -iso_pad
+    y = -iso_pad
+    w = width + iso_pad
+    h = height + iso_pad
     return (
-        f'<rect x="0" y="0" '
-        f'width="{_FMT.format(width)}" height="{_FMT.format(height)}" '
+        f'<rect x="{_FMT.format(x)}" y="{_FMT.format(y)}" '
+        f'width="{_FMT.format(w)}" height="{_FMT.format(h)}" '
         f'fill="{fill}"/>'
     )
 

@@ -110,10 +110,28 @@ table.support-matrix td:not(:first-child) { text-align: center; }
 }
 
 /* Reference images (like the flow-view gallery PNGs) should have a
- * light hairline so they don't dissolve into the page background. */
+ * light hairline so they don't dissolve into the page background.
+ * Max-width keeps high-res PNGs from overflowing the content column. */
 .md-typeset img:not([alt=""]) {
+  max-width: 640px;
+  width: 100%;
+  height: auto;
+  display: block;
   border-radius: 0.375rem;
   box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* Wide diagrams (many layers, very landscape aspect ratio) need more
+ * room to remain legible. Add { .wide } after the alt text. */
+.md-typeset img.wide {
+  max-width: 900px;
+  width: 900px;
+}
+
+/* Hero image overrides the cap above — it should fill its grid cell. */
+.hero__preview img,
+.hero__preview svg {
+  max-width: 100%;
 }
 
 /* Header tweaks — the topbar sits at a lower elevation than default. */

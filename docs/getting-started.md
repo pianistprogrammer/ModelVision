@@ -45,8 +45,11 @@ class TinyNet(nn.Module):
         )
 
 
-mv.render(TinyNet(), output="tinynet.svg", theme="dark")
+mv.render(TinyNet(), output="tinynet.svg", theme="light", layout="flow",
+          input_shape=(1, 3, 32, 32))
 ```
+
+![TinyNet architecture diagram rendered by ModelVision](assets/sample_getting_started.png)
 
 This creates an SVG architecture diagram from the model structure.
 

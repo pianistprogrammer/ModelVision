@@ -21,7 +21,7 @@ subcommand, and exit code.
 # Visualtorch-style 3D flow diagram.
 mvision render vgg.py VGG16 -o vgg.svg \
     --layout flow --input-shape 1x3x224x224 \
-    --palette okabe_ito --legend
+    --palette pastel --legend
 
 # Interactive HTML with pan/zoom + click-to-inspect.
 mvision render model.py MyNet -o diagram.html --theme dark --volumetric

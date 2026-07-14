@@ -83,6 +83,10 @@ def render(
     when ``output`` is ``None`` and we're not in a notebook. Returns a
     :class:`PIL.Image.Image` when ``inline=True`` (Jupyter display).
 
+    ``model`` may also be a pre-built :class:`~modelvision.core.ir.ModelGraph`
+    — useful for custom / non-ML diagrams or when you want full control
+    over nodes and edges without a framework model.
+
     - ``dpi`` — resolution for raster outputs (PNG, PDF). Default 300 —
       the standard for publications and print. Increase to 600 for A3
       posters, lower to 150 for quick previews.
@@ -103,15 +107,18 @@ def render(
     - ``size_by_shape`` — scale each node's box proportional to its
       output tensor shape (channels drive width, spatial dims drive height).
     """
-    # 1. Inspect.
-    graph = inspect(
-        model,
-        framework=framework,
-        symbolic_shapes=symbolic_shapes,
-        show_shared_weights=show_shared_weights,
-        input_shape=input_shape,
-        expand_groups=expand_groups,
-    )
+    # 1. Inspect — or accept a pre-built ModelGraph directly.
+    if isinstance(model, ModelGraph):
+        graph = model
+    else:
+        graph = inspect(
+            model,
+            framework=framework,
+            symbolic_shapes=symbolic_shapes,
+            show_shared_weights=show_shared_weights,
+            input_shape=input_shape,
+            expand_groups=expand_groups,
+        )
 
     # 2. Post-process — merge nodes, auto-collapse, badges.
     graph = post_process(graph, expand_groups=expand_groups)
